@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts — Figma uses "Yekan Bakh FaNum" (a licensed Persian font).
+     Swap the src below for your licensed font files, or fall back to a
+     free alternative (e.g. Vazirmatn via next/font/google) until you have it. */
+  --font-sans: "Yekan Bakh FaNum", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+
+  /* Design tokens pulled from the Figma file (Regal — Women's Clothing Store) */
+  --color-black: #0b0c17;
+  --color-white: #ffffff;
+
+  --color-neutral-01: #fafafa;
+  --color-neutral-03: #f2f2f3;
+  --color-neutral-08: #85858b;
+  --color-neutral-09: #6d6d74;
+  --color-neutral-11: #3c3d45;
+  --color-neutral-12: #2e2f39;
+  --color-neutral-13: #23242e;
+
+  --color-primary: #b19276;
+  --color-primary-shade-08: #231d18;
+  --color-primary-tint-02: #efe9e4;
+  --color-primary-tint-09: #b99d84;
+}
+
+html {
+  direction: rtl;
+}
+
+body {
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: var(--font-sans);
+}
