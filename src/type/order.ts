@@ -1,1 +1,0 @@
-//{ id, customerName, status, items, total, ... }

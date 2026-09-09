@@ -3,14 +3,14 @@ import { User, Heart, ShoppingCart, Search, ChevronDown } from "lucide-react";
 
 const navLinks = [
   { label: "درباره ما", href: "/about" },
-  { label: "تخفیف‌دار‌ها", href: "/discounts" },
-  { label: "دسته‌بندی‌ها", href: "/categories", hasArrow: true },
+  { label: "تخفیف‌دار‌ها", href: "/shop/discount" },
+  { label: "دسته‌بندی‌ها", href: "/shop", hasArrow: true },
   { label: "صفحه اصلی", href: "/", active: true },
 ];
 
 const iconButtons = [
   { icon: User, label: "حساب کاربری", href: "/account" },
-  { icon: Heart, label: "علاقه‌مندی‌ها", href: "/favorites" },
+  { icon: Heart, label: "علاقه‌مندی‌ها", href: "/shop/wishlist" },
   { icon: ShoppingCart, label: "سبد خرید", href: "/cart" },
   { icon: Search, label: "جستجو", href: "/search" },
 ];
