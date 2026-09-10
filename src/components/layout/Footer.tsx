@@ -53,15 +53,22 @@ function SectionHeading({ title }: { title: string }) {
 export default function Footer() {
   return (
     <footer dir="rtl" className="relative bg-black text-white">
+    
       <div className="mx-auto flex max-w-7xl flex-col gap-12 px-6 py-16 md:px-12 lg:flex-row lg:items-start lg:gap-10">
-        {/* Brand + newsletter — right side in RTL */}
+        
         <div className="flex w-full max-w-[400px] shrink-0 flex-col items-start gap-6">
+          
           <span className="text-[28px] font-semibold tracking-tight">règal</span>
+
           <p className="text-sm leading-7 text-white/90">
             به فروشگاه رگال خوش آمدید، جایی که استایل و شیک بودن به شما هدیه داده
             می‌شود. با خبرنامه رگال همراه باشید و اولین نفر باشید که اخبار،
             پیشنهادات و توصیه‌های دنیای مد و فشن را می‌شنوید.
           </p>
+
+
+
+{/*Event Handler  ----  js code in jsx and also stop refershing --- we said what happen after onclick */}
           <form
             className="flex w-full items-center gap-3"
             onSubmit={(event) => event.preventDefault()}
@@ -92,39 +99,63 @@ export default function Footer() {
           </button>
         </div>
 
+
+
+
+
+
         {/* Link columns — لینک‌های کمکی → دسته محصولات → ارتباط با ما → اطلاعات تماس */}
         <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4">
+
           {linkColumns.map((col) => (
             <div key={col.title} className="flex flex-col items-start gap-5">
+
+
               <SectionHeading title={col.title} />
+
               <ul className="flex flex-col gap-1">
+
                 {col.links.map((label) => (
                   <li key={label}>
+
                     <Link
                       href="#"
-                      className="block py-1.5 text-sm text-neutral-03 transition-colors hover:text-white"
+                      className="block py-1.5 text-sm text-neutral-03 transition-colors hover:text-shadow-yellow-900"
                     >
                       {label}
                     </Link>
+
                   </li>
+
                 ))}
               </ul>
             </div>
           ))}
 
           <div className="col-span-2 flex flex-col items-start gap-5 sm:col-span-1">
+
             <SectionHeading title="اطلاعات تماس" />
+
             <ul className="flex w-full flex-col gap-1 text-sm text-neutral-03">
+
               {contactItems.map(({ text, icon: Icon }) => (
                 <li key={text} className="flex items-start gap-2 py-2">
+
                   <Icon className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} />
+
                   <span>{text}</span>
+
                 </li>
               ))}
             </ul>
           </div>
         </div>
       </div>
+
+
+
+
+
 
       <div className="border-t border-neutral-12">
         <div className="mx-auto flex max-w-7xl flex-col-reverse items-center justify-between gap-4 px-6 py-5 md:flex-row md:px-12">
@@ -137,7 +168,6 @@ export default function Footer() {
               <button
                 key={label}
                 type="button"
-                aria-label={label}
                 className="flex items-center justify-center rounded-lg border border-neutral-08 p-3 transition-colors hover:bg-neutral-13"
               >
                 <Icon className="size-4" strokeWidth={1.5} />
