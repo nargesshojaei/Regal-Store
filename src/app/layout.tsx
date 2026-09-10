@@ -6,7 +6,7 @@ const vazirmatn = Vazirmatn({
   subsets: ["arabic"],
   variable: "--font-vazirmatn",
 });
-
+  
 export const metadata: Metadata = {
   title: "رگال | فروشگاه پوشاک زنانه",
   description: "لباس‌هایی که داستان شما را روایت می‌کنند.",
