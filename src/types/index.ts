@@ -13,7 +13,7 @@ export type BlogPost = {
   image: string;
   href: string;
 };
-
+ 
 export type Testimonial = {
   id: string;
   name: string;
