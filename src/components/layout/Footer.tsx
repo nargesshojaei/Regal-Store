@@ -112,7 +112,7 @@ export default function Footer() {
 
 
               <SectionHeading title={col.title} />
-
+  
               <ul className="flex flex-col gap-1">
 
                 {col.links.map((label) => (
