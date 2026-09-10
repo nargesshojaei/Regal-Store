@@ -15,4 +15,4 @@ export type Product = {
   description: string;
   rating?: number;
   colors?: ProductColor[];
-};
+}; 
