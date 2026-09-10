@@ -14,4 +14,4 @@ export type Order = {
   items: OrderItem[];
   total: number;
   createdAt: string;
-};
+}; 
