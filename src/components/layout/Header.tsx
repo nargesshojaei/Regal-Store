@@ -42,7 +42,7 @@ export default function Header() {
             href={href}
             className={`flex h-10 items-center gap-2 rounded-lg px-4 py-2 text-sm transition-colors hover:text-primary 
               ${active ? "text-black" : "text-neutral-11"}`}
-          >
+          >  
             {hasArrow && <ChevronDown className="size-4" strokeWidth={1.5} />}
             {label}
           </Link>
