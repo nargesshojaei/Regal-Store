@@ -1,4 +1,9 @@
+import ProductTable from "@/features/admin/product/ProductTable";
+// صفحه مدیریت کالاها را باز می‌کند
 export default function AdminProductsPage() {
-  return null;
+  return (
+    <section dir="rtl">
+      <ProductTable />
+    </section>
+  );
 }
-

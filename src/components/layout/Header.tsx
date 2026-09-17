@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { User, Heart, ShoppingCart, Search, ChevronDown } from "lucide-react";
+import {
+  User,
+  Heart,
+  ShoppingCart,
+  Search,
+  ChevronDown,
+  LayoutDashboard,
+} from "lucide-react";
 
 const navLinks = [
   { label: "درباره ما", href: "/about" },
@@ -9,6 +16,7 @@ const navLinks = [
 ];
 
 const iconButtons = [
+  { icon: LayoutDashboard, label: "پنل مدیریت", href: "/admin/login" },
   { icon: User, label: "حساب کاربری", href: "/account" },
   { icon: Heart, label: "علاقه‌مندی‌ها", href: "/shop/wishlist" },
   { icon: ShoppingCart, label: "سبد خرید", href: "/cart" },
@@ -27,6 +35,7 @@ export default function Header() {
           <Link
             key={label}
             href={href}
+            aria-label={label}
             className="flex items-center justify-center rounded-lg p-3 transition-colors hover:bg-neutral-03"
           >
             <Icon className="size-4" strokeWidth={1.5} />
