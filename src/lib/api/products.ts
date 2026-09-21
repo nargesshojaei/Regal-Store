@@ -3,12 +3,13 @@ import { api, apiList, fileUrl } from "./client";
 
 {/*کار با کالا.
 
-نوع ApiProduct: id، name، image، thumbnail، price، quantity، category، subcategory، description
-productImageSrc → آدرس عکس از thumbnail یا اولین image
-fetchProducts(page, category) → لیست با _page، _limit=5، اختیاری category
-createProduct → POST
-updateProduct → PATCH
-deleteProduct → DELETE */}
+نوع Product: id، name، image، thumbnail، price، quantity، category، subcategory، description
+productPhoto → آدرس عکس از thumbnail یا اولین image
+getProducts(page, category, subcategory, limit) → لیست با فیلتر دسته / زیردسته
+getProduct(id) → یک کالا برای صفحه جزئیات
+addProduct → POST
+editProduct → PATCH
+removeProduct → DELETE */}
 export const PAGE_SIZE = 5;
 
 export type Product = {
@@ -23,18 +24,32 @@ export type Product = {
   subcategory?: number;
   description?: string;
   createdAt?: number;
+  discount?: number;
+  color?: string[];
+  size?: string[];
+  favourite?: boolean;
 };
 
 // آدرس عکس کالا روی سرور
 export function productPhoto(product: Product) {
-  const id = product.thumbnail || product.image?.[0];
+  let id = product.thumbnail;
+
+  if (!id && product.image && product.image[0]) {
+    id = product.image[0];
+  }
+
   return fileUrl(id);
 }
 
-export async function getProducts(page = 1, category?: number) {
+export async function getProducts(
+  page = 1,
+  category?: number,
+  subcategory?: number,
+  limit = PAGE_SIZE,
+) {
   const params = new URLSearchParams({
     _page: String(page),
-    _limit: String(PAGE_SIZE),
+    _limit: String(limit),
     _sort: "createdAt",
     _order: "desc",
   });
@@ -43,7 +58,16 @@ export async function getProducts(page = 1, category?: number) {
     params.set("category", String(category));
   }
 
+  if (subcategory) {
+    params.set("subcategory", String(subcategory));
+  }
+
   return apiList<Product[]>(`/products?${params.toString()}`);
+}
+
+// یک کالا با آیدی، برای صفحه جزئیات
+export async function getProduct(id: string | number) {
+  return api<Product>(`/products/${id}`, { cache: "no-store" });
 }
 
 export async function addProduct(body: Omit<Product, "id">) {
