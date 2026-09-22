@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ExternalLink, LogOut } from "lucide-react";
+import RegalLogo from "@/components/brand/RegalLogo";
 import { logoutAdmin } from "@/lib/auth/actions";
 
 const navLinks = [
@@ -31,9 +32,7 @@ export default function AdminHeader() {
     >
       <div className="flex w-full items-center gap-6 px-6 py-4 md:px-8">
         <Link href="/admin" className="flex shrink-0 items-center gap-3">
-          <span className="text-xl font-semibold tracking-tight text-black">
-            رگال
-          </span>
+          <RegalLogo className="h-8 w-auto" />
           <span className="rounded-full bg-primary-tint-02 px-3 py-1 text-xs text-primary">
             پنل مدیریت
           </span>
