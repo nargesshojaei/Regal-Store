@@ -1,6 +1,6 @@
 import { getAccessTokenFromBrowser } from "@/lib/auth/access-token";
 //fetch مشترک، هدر token، آدرس عکس
-
+//درس API، ساخت لینک عکس و fetch مشترک با هدر توکن است. برای آپلود، هدر JSON نمی‌گذارد تا فایل
 {/*
 پایه همه درخواست‌ها.
 
@@ -15,11 +15,13 @@ export function getApiUrl() {
   return API_URL;
 }
 
-export function fileUrl(fileId?: string) {
-  if (!fileId) return undefined;
-  if (fileId.startsWith("http")) return fileId;
-  if (fileId.startsWith("/")) return `${API_URL}${fileId}`;
-  return `${API_URL}/files/${fileId}`;
+// آدرس عکس روی سرور
+export function fileUrl(id?: string) {
+  if (!id) return undefined;
+  if (id.startsWith("http")) return id;
+  if (id.startsWith("blob:")) return id;
+  if (id.startsWith("/")) return `${API_URL}${id}`;
+  return `${API_URL}/files/${id}`;
 }
 
 async function send(path: string, options?: RequestInit) {
@@ -55,8 +57,8 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
   }
 }
 
-export async function apiList<T>(path: string) {
-  const response = await send(path);
+export async function apiList<T>(path: string, options?: RequestInit) {
+  const response = await send(path, { cache: "no-store", ...options });
   const data = (await response.json()) as T;
   const raw =
     response.headers.get("X-Total-Count") ??

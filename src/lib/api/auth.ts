@@ -1,5 +1,6 @@
 import { getApiUrl } from "./client";
 // لاگین و گرفتن accessToken
+//لاگین ادمین است و accessToken را از سرور می‌گیرد. اگر سرور در دسترس نباشد، ورود admin / admin را
 // لاگین با fetch. اگر درست باشد accessToken برمی‌گردد.
 export async function loginRequest(username: string, password: string) {
   try {
@@ -22,6 +23,10 @@ export async function loginRequest(username: string, password: string) {
 
     return { accessToken: data.accessToken as string };
   } catch {
+    if (username === "admin" && password === "admin") {
+      return { accessToken: "local-dev-admin" };
+    }
+
     return { error: "سرور روی پورت ۳۰۰۲ روشن نیست." };
   }
 }
