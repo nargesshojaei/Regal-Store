@@ -1,4 +1,6 @@
 "use client";
+//یک سلول جدول است که با کلیک به فیلد متن تبدیل می‌شود.
+import { useEffect, useRef } from "react";
 
 export default function EditableCell({
   show,
@@ -15,6 +17,13 @@ export default function EditableCell({
   onType: (value: string) => void;
   onEsc: () => void;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isEdit) return;
+    inputRef.current?.focus({ preventScroll: true });
+  }, [isEdit]);
+
   if (!isEdit) {
     return (
       <button
@@ -29,7 +38,7 @@ export default function EditableCell({
 
   return (
     <input
-      autoFocus
+      ref={inputRef}
       value={text}
       inputMode="numeric"
       onChange={(e) => onType(e.target.value)}

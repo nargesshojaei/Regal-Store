@@ -13,10 +13,10 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
 import { getOrderCount, getOrders, PAGE_SIZE } from "@/lib/api/orders";
-import { fileUrl } from "@/lib/api/client";
 import { formatDate, formatPrice } from "@/lib/format";
 import { orderCustomerName, type Order } from "@/types/order";
 import Pagination from "@/ui/Pagination";
+import ProductPhoto from "@/ui/ProductPhoto";
 import OrderModal from "./OrderModal";
 
 export default function OrderTable() {
@@ -120,8 +120,8 @@ export default function OrderTable() {
                   />
                 </button>
               </th>
-              <th className="px-4 py-3 text-right font-medium">
-                <span className="sr-only">عملیات</span>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">
+                وضعیت سفارش
               </th>
             </tr>
           </thead>
@@ -156,31 +156,19 @@ export default function OrderTable() {
             ) : (
               orders.map((item, index) => (
                 <tr
-                  key={item.id}
+                  key={`order-${page}-${index}-${item.id}`}
                   className={index % 2 === 1 ? "bg-neutral-01" : "bg-white"}
                 >
                   <td className="px-4 py-3 text-black">{orderCustomerName(item)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      {(item.products ?? []).map((p, i) => {
-                        const photo = fileUrl(p.image);
-                        return photo ? (
-                          <img
-                            key={`${p.id}-${i}`}
-                            src={photo}
-                            alt={p.name}
-                            className="size-12 rounded-lg bg-neutral-03 object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.visibility = "hidden";
-                            }}
-                          />
-                        ) : (
-                          <div
-                            key={`${p.id}-${i}`}
-                            className="size-12 rounded-lg bg-neutral-03"
-                          />
-                        );
-                      })}
+                      {(item.products ?? []).map((p, i) => (
+                        <ProductPhoto
+                          key={`${p.id}-${i}`}
+                          src={p.image}
+                          alt={p.name}
+                        />
+                      ))}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-neutral-11">

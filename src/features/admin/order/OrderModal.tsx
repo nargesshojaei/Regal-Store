@@ -10,7 +10,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getOrder, setOrderDelivered } from "@/lib/api/orders";
-import { fileUrl } from "@/lib/api/client";
 import { formatDate, formatPrice } from "@/lib/format";
 import {
   isOrderDelivered,
@@ -20,6 +19,7 @@ import {
   type Order,
 } from "@/types/order";
 import Modal from "@/ui/Modal";
+import ProductPhoto from "@/ui/ProductPhoto";
 import OrderStatusBadge from "./OrderStatusBadge";
 
 export default function OrderModal({
@@ -136,23 +136,11 @@ export default function OrderModal({
                   {(data.products ?? []).map((item, index) => {
                     const count = orderProductCount(item);
                     const price = orderProductPrice(item);
-                    const photo = fileUrl(item.image);
 
                     return (
                       <tr key={`${item.id}-${index}`} className="border-t border-neutral-03">
                         <td className="px-4 py-3">
-                          {photo ? (
-                            <img
-                              src={photo}
-                              alt={item.name}
-                              className="size-12 rounded-lg bg-neutral-03 object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.visibility = "hidden";
-                              }}
-                            />
-                          ) : (
-                            <div className="size-12 rounded-lg bg-neutral-03" />
-                          )}
+                          <ProductPhoto src={item.image} alt={item.name} />
                         </td>
                         <td className="px-4 py-3 font-medium text-black">{item.name}</td>
                         <td className="px-4 py-3 text-neutral-11">{formatPrice(price)}</td>

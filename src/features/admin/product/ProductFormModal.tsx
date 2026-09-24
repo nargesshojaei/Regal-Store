@@ -112,7 +112,13 @@ function Form({
     setSaving(true);
 
     try {
-      let photoId = product ? product.thumbnail || product.image?.[0] : undefined;
+      let photoId = "";
+      if (product) {
+        photoId = product.thumbnail || "";
+        if (!photoId && product.image && product.image[0]) {
+          photoId = product.image[0];
+        }
+      }
       if (file) {
         photoId = await uploadPhoto(file);
       }
@@ -155,9 +161,6 @@ function Form({
               src={photo}
               alt={name || "تصویر کالا"}
               className="size-16 rounded-lg bg-neutral-03 object-cover"
-              onError={(e) => {
-                e.currentTarget.style.visibility = "hidden";
-              }}
             />
           ) : (
             <div className="size-16 rounded-lg bg-neutral-03" />
@@ -200,8 +203,8 @@ function Form({
           className={inputClass}
         >
           <option value="">انتخاب کنید</option>
-          {options.map((item) => (
-            <option key={item.value} value={item.value}>
+          {options.map((item, index) => (
+            <option key={`option-${item.value}-${index}`} value={item.value}>
               {item.text}
             </option>
           ))}

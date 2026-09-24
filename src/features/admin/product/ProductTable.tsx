@@ -1,4 +1,5 @@
 "use client";
+//لیست کالا با فیلتر دسته، افزودن، ویرایش، حذف و صفحه‌بندی است.
 {/* قلب صفحه مدیریت کالا.
 
 از سرور لیست کالا می‌گیرد: GET /products?_page=1&_limit=5
@@ -13,8 +14,9 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { categoryName, getCategories, getSubs } from "@/lib/api/categories";
-import { getProducts, PAGE_SIZE, productPhoto, type Product } from "@/lib/api/products";
+import { getProducts, PAGE_SIZE, type Product } from "@/lib/api/products";
 import Pagination from "@/ui/Pagination";
+import ProductPhoto from "@/ui/ProductPhoto";
 import ProductDeleteDialog from "./ProductDeleteDialog";
 import ProductFormModal from "./ProductFormModal";
 
@@ -84,8 +86,8 @@ export default function ProductTable() {
               className="h-10 min-w-44 rounded-lg border border-neutral-03 bg-white px-3 text-sm text-black outline-none focus:border-primary"
             >
               <option value="">همه</option>
-              {categories.map((item) => (
-                <option key={item.id} value={item.id}>
+              {categories.map((item, index) => (
+                <option key={`category-${item.id}-${index}`} value={item.id}>
                   {item.name}
                 </option>
               ))}
@@ -111,8 +113,8 @@ export default function ProductTable() {
               <th className="px-4 py-3 text-right font-medium">تصویر</th>
               <th className="px-4 py-3 text-right font-medium">نام کالا</th>
               <th className="px-4 py-3 text-right font-medium">دسته‌بندی</th>
-              <th className="px-4 py-3 text-right font-medium">
-                <span className="sr-only">عملیات</span>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">
+                ویرایش/حذف
               </th>
             </tr>
           </thead>
@@ -145,27 +147,13 @@ export default function ProductTable() {
                 </td>
               </tr>
             ) : (
-              products.map((item, index) => {
-                const photo = productPhoto(item);
-
-                return (
+              products.map((item, index) => (
                   <tr
-                    key={item.id}
+                    key={`product-${page}-${index}-${item.id}`}
                     className={index % 2 === 1 ? "bg-neutral-01" : "bg-white"}
                   >
                     <td className="px-4 py-3">
-                      {photo ? (
-                        <img
-                          src={photo}
-                          alt={item.name}
-                          className="size-12 rounded-lg bg-neutral-03 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.visibility = "hidden";
-                          }}
-                        />
-                      ) : (
-                        <div className="size-12 rounded-lg bg-neutral-03" />
-                      )}
+                      <ProductPhoto product={item} alt={item.name} />
                     </td>
                     <td className="px-4 py-3 font-medium text-black">{item.name}</td>
                     <td className="px-4 py-3 text-neutral-11">
@@ -198,8 +186,7 @@ export default function ProductTable() {
                       </div>
                     </td>
                   </tr>
-                );
-              })
+              ))
             )}
           </tbody>
         </table>

@@ -4,6 +4,7 @@
 داده از همان /products می‌آید با pagination ۵ تایی
 ستون‌ها: تصویر | کالا | قیمت | موجودی
 کلیک روی قیمت یا موجودی → آن سلول textbox می‌شود و عدد قبلی داخلش است
+چند سلول می‌توانند همزمان باز بمانند؛ کلیک روی سلول دیگر قبلی را نمی‌بندد
 id آن کالا در آرایه changedIds می‌ماند
 مقدار جدید در drafts نگه داشته می‌شود تا ذخیره زده شود
 دکمه ذخیره: اگر changedIds خالی باشد غیرفعال است
@@ -15,8 +16,9 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getInventory, PAGE_SIZE, saveInventory } from "@/lib/api/inventory";
 import { formatPrice } from "@/lib/format";
-import { productPhoto, type Product } from "@/lib/api/products";
+import { type Product } from "@/lib/api/products";
 import Pagination from "@/ui/Pagination";
+import ProductPhoto from "@/ui/ProductPhoto";
 import EditableCell from "./EditableCell";
 
 export default function InventoryTable() {
@@ -25,8 +27,7 @@ export default function InventoryTable() {
   const [page, setPage] = useState(1);
   const [ids, setIds] = useState<number[]>([]);
   const [values, setValues] = useState<Record<number, { price: string; quantity: string }>>({});
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editField, setEditField] = useState<"price" | "quantity" | null>(null);
+  const [editing, setEditing] = useState<Record<string, true>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -53,6 +54,10 @@ export default function InventoryTable() {
     );
   }
 
+  function cellKey(id: number, field: "price" | "quantity") {
+    return `${id}:${field}`;
+  }
+
   function clickNumber(item: Product, field: "price" | "quantity") {
     if (!values[item.id]) {
       setValues({
@@ -66,8 +71,7 @@ export default function InventoryTable() {
     if (!ids.includes(item.id)) {
       setIds([...ids, item.id]);
     }
-    setEditId(item.id);
-    setEditField(field);
+    setEditing({ ...editing, [cellKey(item.id, field)]: true });
   }
 
   function typeNumber(item: Product, field: "price" | "quantity", value: string) {
@@ -78,14 +82,8 @@ export default function InventoryTable() {
     });
   }
 
-  function cancel(item: Product) {
-    if (editId !== item.id || !editField) {
-      setEditId(null);
-      setEditField(null);
-      return;
-    }
-
-    const row = { ...rowOf(item), [editField]: String(item[editField] ?? 0) };
+  function cancel(item: Product, field: "price" | "quantity") {
+    const row = { ...rowOf(item), [field]: String(item[field] ?? 0) };
     const same =
       Number(row.price) === Number(item.price) &&
       Number(row.quantity) === Number(item.quantity);
@@ -99,8 +97,9 @@ export default function InventoryTable() {
       setValues({ ...values, [item.id]: row });
     }
 
-    setEditId(null);
-    setEditField(null);
+    const nextEditing = { ...editing };
+    delete nextEditing[cellKey(item.id, field)];
+    setEditing(nextEditing);
   }
 
   async function save() {
@@ -124,10 +123,12 @@ export default function InventoryTable() {
       if (values[id]) nextValues[id] = values[id];
     }
     setValues(nextValues);
-    if (!editId || !failed.includes(editId)) {
-      setEditId(null);
-      setEditField(null);
+    const nextEditing: Record<string, true> = {};
+    for (const id of failed) {
+      if (editing[cellKey(id, "price")]) nextEditing[cellKey(id, "price")] = true;
+      if (editing[cellKey(id, "quantity")]) nextEditing[cellKey(id, "quantity")] = true;
     }
+    setEditing(nextEditing);
     await queryClient.invalidateQueries({ queryKey: ["admin-inventory"] });
     if (failed.length > 0) setError("بعضی کالاها ذخیره نشد. دوباره تلاش کنید.");
     setSaving(false);
@@ -186,46 +187,34 @@ export default function InventoryTable() {
             ) : (
               products.map((item, index) => {
                 const row = rowOf(item);
-                const photo = productPhoto(item);
 
                 return (
                   <tr
-                    key={item.id}
+                    key={`inventory-${page}-${index}-${item.id}`}
                     className={index % 2 === 1 ? "bg-neutral-01" : "bg-white"}
                   >
                     <td className="px-4 py-3">
-                      {photo ? (
-                        <img
-                          src={photo}
-                          alt={item.name}
-                          className="size-12 rounded-lg bg-neutral-03 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.visibility = "hidden";
-                          }}
-                        />
-                      ) : (
-                        <div className="size-12 rounded-lg bg-neutral-03" />
-                      )}
+                      <ProductPhoto product={item} alt={item.name} />
                     </td>
                     <td className="px-4 py-3 font-medium text-black">{item.name}</td>
                     <td className="px-4 py-3">
                       <EditableCell
                         show={formatPrice(row.price)}
                         text={row.price}
-                        isEdit={editId === item.id && editField === "price"}
+                        isEdit={Boolean(editing[cellKey(item.id, "price")])}
                         onClick={() => clickNumber(item, "price")}
                         onType={(value) => typeNumber(item, "price", value)}
-                        onEsc={() => cancel(item)}
+                        onEsc={() => cancel(item, "price")}
                       />
                     </td>
                     <td className="px-4 py-3">
                       <EditableCell
                         show={row.quantity}
                         text={row.quantity}
-                        isEdit={editId === item.id && editField === "quantity"}
+                        isEdit={Boolean(editing[cellKey(item.id, "quantity")])}
                         onClick={() => clickNumber(item, "quantity")}
                         onType={(value) => typeNumber(item, "quantity", value)}
-                        onEsc={() => cancel(item)}
+                        onEsc={() => cancel(item, "quantity")}
                       />
                     </td>
                   </tr>
@@ -247,11 +236,7 @@ export default function InventoryTable() {
         page={page}
         total={total}
         limit={PAGE_SIZE}
-        onPageChange={(next) => {
-          setPage(next);
-          setEditId(null);
-          setEditField(null);
-        }}
+        onPageChange={setPage}
       />
     </div>
   );
