@@ -1,3 +1,4 @@
+// آدرس ?status=success صفحه موفق است. هر مقدار دیگر صفحه ناموفق است.
 import PaymentResult from "@/features/checkout/PaymentResult";
 
 type CheckoutResultPageProps = {
@@ -7,9 +8,9 @@ type CheckoutResultPageProps = {
 export default async function CheckoutResultPage({
   searchParams,
 }: CheckoutResultPageProps) {
-  const { status } = await searchParams;
+  const params = await searchParams;
+  let status: "success" | "failed" = "failed";
+  if (params.status === "success") status = "success";
 
-  return (
-    <PaymentResult status={status === "success" ? "success" : "failed"} />
-  );
+  return <PaymentResult status={status} />;
 }

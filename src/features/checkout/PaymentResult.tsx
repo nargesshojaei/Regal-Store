@@ -1,70 +1,103 @@
+"use client";
+
+// صفحه آخر خرید.
+// موفق: کد رهگیری را نشان می‌دهد. سفارش قبلاً ذخیره شده و سبد خالی است.
+// ناموفق: سبد دست نخورده می‌ماند و کاربر می‌تواند دوباره پرداخت کند.
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Check, X } from "lucide-react";
+import { readDraft, readReceipt } from "@/lib/checkout";
+import { faDigits } from "@/lib/format";
 
 type PaymentResultProps = {
   status: "success" | "failed";
 };
 
-const copy = {
-  success: {
-    title: "پرداخت موفق",
-    description:
-      "سفارش شما ثبت شد. جزئیات را از حساب کاربری یا ایمیل پیگیری کنید.",
-    Icon: CheckCircle2,
-    iconClass: "text-primary",
-    primaryHref: "/shop",
-    primaryLabel: "ادامه خرید",
-    secondaryHref: "/account",
-    secondaryLabel: "مشاهده سفارش‌ها",
-  },
-  failed: {
-    title: "پرداخت ناموفق",
-    description:
-      "پرداخت انجام نشد. مبلغی کسر نشده است؛ دوباره امتحان کنید یا به سبد برگردید.",
-    Icon: XCircle,
-    iconClass: "text-neutral-11",
-    primaryHref: "/checkout",
-    primaryLabel: "تلاش دوباره",
-    secondaryHref: "/cart",
-    secondaryLabel: "بازگشت به سبد",
-  },
-} as const;
+const buttonClass =
+  "inline-flex h-12 min-w-44 items-center justify-center rounded-lg px-5 text-sm";
 
 export default function PaymentResult({ status }: PaymentResultProps) {
-  const content = copy[status];
-  const { Icon } = content;
+  const router = useRouter();
+  const [tracking, setTracking] = useState("");
+  const [ready, setReady] = useState(false);
+  const success = status === "success";
+
+  useEffect(() => {
+    if (success) {
+      const receipt = readReceipt();
+      // اگر کسی مستقیم این آدرس را باز کند و پرداختی نبوده، برگردد سبد
+      if (!receipt) {
+        router.replace("/cart");
+        return;
+      }
+      setTracking(receipt.trackingCode);
+      setReady(true);
+      return;
+    }
+
+    const draft = readDraft();
+    if (draft) setTracking(draft.trackingCode);
+    setReady(true);
+  }, [router, success]);
+
+  if (!ready) {
+    return <p className="px-6 py-24 text-center text-sm text-neutral-09">در حال بارگذاری...</p>;
+  }
+
+  let title = "پرداخت شما ناموفق بود!";
+  let description =
+    "سفارش ثبت نشده است. سبد خرید باقی مانده و می‌توانید دوباره پرداخت کنید.";
+  let firstHref = "/checkout/pay";
+  let firstLabel = "پرداخت مجدد";
+  let secondHref = "/cart";
+  let secondLabel = "بازگشت به سبد خرید";
+
+  if (success) {
+    title = "پرداخت شما با موفقیت انجام شد!";
+    description =
+      "سفارش شما ثبت شد و سبد خرید خالی شد. جزئیات را از بخش سفارش‌های حساب کاربری ببینید.";
+    firstHref = "/account/orders";
+    firstLabel = "پیگیری سفارش";
+    secondHref = "/";
+    secondLabel = "بازگشت به صفحه اصلی";
+  }
 
   return (
     <section
       dir="rtl"
-      className="flex min-h-[70vh] items-center justify-center px-6 py-16"
+      className="flex min-h-[70vh] flex-col items-center justify-center px-6 py-20 text-center"
     >
-      <div className="w-full max-w-md rounded-2xl border border-neutral-03 bg-neutral-01 px-8 py-12 text-center">
-        <Icon
-          className={`mx-auto size-16 ${content.iconClass}`}
-          strokeWidth={1.25}
-          aria-hidden
-        />
-        <h1 className="mt-6 text-2xl font-semibold text-black">
-          {content.title}
-        </h1>
-        <p className="mt-3 text-sm leading-7 text-neutral-09">
-          {content.description}
+      <span
+        className={`flex size-20 items-center justify-center rounded-full text-white ${
+          success ? "bg-[#22c55e]" : "bg-[#f43f5e]"
+        }`}
+      >
+        {success ? (
+          <Check className="size-10" strokeWidth={2.5} />
+        ) : (
+          <X className="size-10" strokeWidth={2.5} />
+        )}
+      </span>
+
+      <h1 className="mt-8 text-2xl font-semibold text-black">{title}</h1>
+      <p className="mt-4 max-w-md text-sm leading-7 text-neutral-09">{description}</p>
+
+      {tracking ? (
+        <p className="mt-6 text-sm text-neutral-11">
+          کد رهگیری سفارش:{" "}
+          <span className="font-medium text-black">{faDigits(tracking)}</span>
         </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link
-            href={content.primaryHref}
-            className="rounded-lg bg-primary px-5 py-3 text-sm text-white transition-colors hover:bg-primary-shade-08"
-          >
-            {content.primaryLabel}
-          </Link>
-          <Link
-            href={content.secondaryHref}
-            className="rounded-lg border border-neutral-03 bg-white px-5 py-3 text-sm text-neutral-11 transition-colors hover:bg-neutral-03"
-          >
-            {content.secondaryLabel}
-          </Link>
-        </div>
+      ) : null}
+
+      <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+        <Link href={firstHref} className={`${buttonClass} border border-neutral-03 bg-white text-neutral-12`}>
+          {firstLabel}
+        </Link>
+        <Link href={secondHref} className={`${buttonClass} bg-primary text-white`}>
+          {secondLabel}
+        </Link>
       </div>
     </section>
   );
