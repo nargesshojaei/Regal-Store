@@ -1,8 +1,6 @@
 "use client";
-// لیست سفارش نمونه را با فیلتر وضعیت و جزئیات مبلغ نشان می‌دهد.
-// تاریخچه سفارش‌ها
-// فیلتر و باز شدن جزئیات فقط ظاهر صفحه رو عوض می‌کنه
-// خود لیست از لوکال خونده می‌شه
+// سفارش‌های واقعی کاربر
+// وضعیت از همان لیستی می‌آید که ادمین تحویل را در آن ثبت می‌کند
 
 import { useState } from "react";
 import Link from "next/link";
@@ -16,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatPrice } from "@/lib/format";
+import { faDigits, formatLongDate, formatPrice } from "@/lib/format";
 import {
   orderDiscount,
   orderPaid,
@@ -27,17 +25,13 @@ import {
 import EmptyState from "./EmptyState";
 
 const statusText: Record<OrderStatus, string> = {
-  courier: "ارسال با پیک",
-  preparing: "در حال آماده‌سازی",
-  pickup: "تحویل حضوری",
+  pending: "در انتظار ارسال",
   delivered: "تحویل داده شده",
 };
 
 const statusClass: Record<OrderStatus, string> = {
-  courier: "bg-emerald-50 text-emerald-700",
+  pending: "bg-amber-50 text-amber-700",
   delivered: "bg-emerald-50 text-emerald-700",
-  preparing: "bg-amber-50 text-amber-700",
-  pickup: "border border-emerald-200 bg-white text-emerald-700",
 };
 
 export default function OrdersPanel() {
@@ -68,9 +62,7 @@ export default function OrdersPanel() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">همه</SelectItem>
-              <SelectItem value="courier">ارسال با پیک</SelectItem>
-              <SelectItem value="preparing">در حال آماده‌سازی</SelectItem>
-              <SelectItem value="pickup">تحویل حضوری</SelectItem>
+              <SelectItem value="pending">در انتظار ارسال</SelectItem>
               <SelectItem value="delivered">تحویل داده شده</SelectItem>
             </SelectContent>
           </Select>
@@ -123,7 +115,14 @@ function OrderCard({
         </Badge>
       </div>
 
+      {/* نام و تاریخ تحویل فقط برای سفارشی است که از فرم خرید آمده */}
+      {order.buyerName ? <p className="text-sm text-black">{order.buyerName}</p> : null}
       <p className="text-sm leading-7 text-neutral-11">{order.address}</p>
+      {order.deliveryDate ? (
+        <p className="text-xs text-neutral-09">
+          تاریخ تحویل: {formatLongDate(order.deliveryDate)}
+        </p>
+      ) : null}
 
       <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-neutral-09">
         <span>مبلغ پرداخت شده: {formatPrice(orderPaid(order))} تومان</span>
@@ -137,8 +136,26 @@ function OrderCard({
         </Button>
       </div>
 
-      {open ? <OrderTable order={order} /> : null}
+      {open ? (
+        <>
+          <OrderExtra order={order} />
+          <OrderTable order={order} />
+        </>
+      ) : null}
     </Card>
+  );
+}
+
+// شغل، کد پستی و توضیحات داخل «جزئیات سفارش» دیده می‌شوند
+function OrderExtra({ order }: { order: AccountOrder }) {
+  if (!order.job && !order.postalCode && !order.notes) return null;
+
+  return (
+    <div className="grid gap-2 rounded-xl bg-neutral-01 px-4 py-3 text-xs text-neutral-11 sm:grid-cols-2">
+      {order.job ? <p>شغل: {order.job}</p> : null}
+      {order.postalCode ? <p>کد پستی: {faDigits(order.postalCode)}</p> : null}
+      {order.notes ? <p className="sm:col-span-2">توضیحات: {order.notes}</p> : null}
+    </div>
   );
 }
 

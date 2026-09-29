@@ -1,63 +1,60 @@
 "use client";
- {/*جدول سفارش‌ها.
 
+// جدول سفارش‌های ادمین
+// لیست همان سفارش‌هایی است که در فروشگاه ثبت شده‌اند
+// فیلتر: در انتظار ارسال / تحویل شده
 
-  
-دو فیلتر رادیویی که سمت سرور فیلتر می‌شوند: delivered=false / delivered=true
-کنار هر فیلتر تعداد سفارش همان وضعیت را نشان می‌دهد
-مرتب‌سازی زمان ثبت سفارش (asc / desc) هم سمت سرور است
-ستون‌ها: نام کاربر | تصویر کالا | نام کالا | مبلغ | تاریخ | بررسی سفارش
-صفحه‌بندی ۵ تایی
-کلیک «بررسی سفارش» مودال را باز می‌کن */}
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
-import { getOrderCount, getOrders, PAGE_SIZE } from "@/lib/api/orders";
+import {
+  orderPaid,
+  useOrders,
+  type AccountOrder,
+  type OrderStatus,
+} from "@/lib/account";
 import { formatDate, formatPrice } from "@/lib/format";
-import { orderCustomerName, type Order } from "@/types/order";
 import Pagination from "@/ui/Pagination";
 import ProductPhoto from "@/ui/ProductPhoto";
 import OrderModal from "./OrderModal";
 
+const PAGE_SIZE = 5;
+
+function orderTime(order: AccountOrder) {
+  return order.createdAt || 0;
+}
+
 export default function OrderTable() {
-  const [ready, setReady] = useState(false);
-  const [status, setStatus] = useState<"pending" | "delivered">("pending");
+  const orders = useOrders();
+  const [status, setStatus] = useState<OrderStatus>("pending");
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<"asc" | "desc">("desc");
-  const [order, setOrder] = useState<Order | null>(null);
+  const [openId, setOpenId] = useState("");
 
-  const delivered = status === "delivered";
+  const list = orders ?? [];
+  const waiting = list.filter((order) => order.status === "pending").length;
+  const done = list.filter((order) => order.status === "delivered").length;
 
-  useEffect(() => {
-    setReady(true);
-  }, []);
-
-  const list = useQuery({
-    queryKey: ["admin-orders", delivered, page, sort],
-    queryFn: () => getOrders(page, delivered, sort),
-    enabled: ready,
+  const filtered = list.filter((order) => order.status === status);
+  const sorted = filtered.slice().sort((a, b) => {
+    if (sort === "asc") return orderTime(a) - orderTime(b);
+    return orderTime(b) - orderTime(a);
   });
 
-  const counts = useQuery({
-    queryKey: ["admin-orders", "counts"],
-    queryFn: async () => ({
-      pending: await getOrderCount(false),
-      delivered: await getOrderCount(true),
-    }),
-    enabled: ready,
-  });
-
-  const waiting = counts.data?.pending ?? 0;
-  const done = counts.data?.delivered ?? 0;
-  const orders = list.data?.data ?? [];
-  const total = list.data?.total ?? 0;
-  const loading = !ready || list.isPending;
+  const start = (page - 1) * PAGE_SIZE;
+  const visible = sorted.slice(start, start + PAGE_SIZE);
+  const openOrder = list.find((order) => order.id === openId) ?? null;
 
   useEffect(() => {
-    if (!loading && orders.length === 0 && page > 1) {
+    if (orders && visible.length === 0 && page > 1) {
       setPage(page - 1);
     }
-  }, [loading, orders.length, page]);
+  }, [orders, page, visible.length]);
+
+  function pickStatus(next: OrderStatus) {
+    setStatus(next);
+    setPage(1);
+    setOpenId("");
+  }
 
   return (
     <div>
@@ -70,11 +67,7 @@ export default function OrderTable() {
               type="radio"
               name="order-status"
               checked={status === "pending"}
-              onChange={() => {
-                setStatus("pending");
-                setPage(1);
-                setOrder(null);
-              }}
+              onChange={() => pickStatus("pending")}
               className="accent-primary"
             />
             سفارش‌های در انتظار ارسال ({waiting})
@@ -84,11 +77,7 @@ export default function OrderTable() {
               type="radio"
               name="order-status"
               checked={status === "delivered"}
-              onChange={() => {
-                setStatus("delivered");
-                setPage(1);
-                setOrder(null);
-              }}
+              onChange={() => pickStatus("delivered")}
               className="accent-primary"
             />
             سفارش‌های تحویل شده ({done})
@@ -126,63 +115,51 @@ export default function OrderTable() {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {!orders ? (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-neutral-09">
                   در حال بارگذاری سفارش‌ها...
                 </td>
               </tr>
-            ) : list.isError ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-12 text-center">
-                  <p className="text-neutral-09">دریافت سفارش‌ها با خطا مواجه شد.</p>
-                  <button
-                    type="button"
-                    onClick={() => list.refetch()}
-                    className="mt-3 text-sm text-primary underline"
-                  >
-                    تلاش دوباره
-                  </button>
-                </td>
-              </tr>
-            ) : orders.length === 0 ? (
+            ) : visible.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-neutral-09">
                   {status === "pending"
-                    ? "سفارشی در انتظار ارسال نیست. اگر سفارش را تحویل زده‌اید، فیلتر «تحویل شده» را بزنید."
+                    ? "سفارشی در انتظار ارسال نیست."
                     : "سفارش تحویل‌شده‌ای وجود ندارد."}
                 </td>
               </tr>
             ) : (
-              orders.map((item, index) => (
+              visible.map((item, index) => (
                 <tr
-                  key={`order-${page}-${index}-${item.id}`}
+                  key={item.id}
                   className={index % 2 === 1 ? "bg-neutral-01" : "bg-white"}
                 >
-                  <td className="px-4 py-3 text-black">{orderCustomerName(item)}</td>
+                  <td className="px-4 py-3 text-black">{item.buyerName || "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      {(item.products ?? []).map((p, i) => (
+                      {item.items.map((product) => (
                         <ProductPhoto
-                          key={`${p.id}-${i}`}
-                          src={p.image}
-                          alt={p.name}
+                          key={product.id}
+                          src={product.image}
+                          alt={product.name}
                         />
                       ))}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-neutral-11">
-                    {(item.products ?? [])
-                      .map((p) => p.name)
-                      .filter(Boolean)
-                      .join("، ")}
+                    {item.items.map((product) => product.name).join("، ")}
                   </td>
-                  <td className="px-4 py-3 text-neutral-11">{formatPrice(item.prices)}</td>
-                  <td className="px-4 py-3 text-neutral-11">{formatDate(item.createdAt)}</td>
+                  <td className="px-4 py-3 text-neutral-11">
+                    {formatPrice(orderPaid(item))}
+                  </td>
+                  <td className="px-4 py-3 text-neutral-11">
+                    {item.createdAt ? formatDate(item.createdAt) : item.date}
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       type="button"
-                      onClick={() => setOrder(item)}
+                      onClick={() => setOpenId(item.id)}
                       className="text-primary underline-offset-4 hover:underline"
                     >
                       بررسی سفارش
@@ -195,14 +172,18 @@ export default function OrderTable() {
         </table>
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs text-neutral-08">
-        <span>{total} سفارش</span>
-        <span>{list.isFetching && !loading ? "در حال به‌روزرسانی..." : null}</span>
+      <div className="mt-3 text-xs text-neutral-08">
+        <span>{filtered.length} سفارش</span>
       </div>
 
-      <Pagination page={page} total={total} limit={PAGE_SIZE} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        total={filtered.length}
+        limit={PAGE_SIZE}
+        onPageChange={setPage}
+      />
 
-      <OrderModal order={order} onClose={() => setOrder(null)} />
+      <OrderModal order={openOrder} onClose={() => setOpenId("")} />
     </div>
   );
 }

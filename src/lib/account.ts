@@ -2,10 +2,10 @@
 //خواندن و ذخیره پروفایل، آدرس، سفارش و وضعیت ورود را انجام می‌دهد وهوک را می‌دهد.
 // حساب کاربری فروشگاه
 // پروفایل، آدرس و سفارش داخل localStorage می‌مونن
+// سفارش‌ها بین فروشگاه و ادمین مشترک‌اند
 // تا با رفرش صفحه پاک نشن
 
 import { useEffect, useState } from "react";
-import { products } from "@/data/Products";
 
 export type Profile = {
   firstName: string;
@@ -29,8 +29,9 @@ export type Address = {
   mapText: string;
 };
 
-// وضعیت‌هایی که توی طرح سفارش هست
-export type OrderStatus = "courier" | "preparing" | "pickup" | "delivered";
+// وضعیت سفارش بین فروشگاه و ادمین یکی است
+// pending = هنوز تحویل نشده، delivered = ادمین تحویل را ثبت کرده
+export type OrderStatus = "pending" | "delivered";
 
 export type AccountOrderItem = {
   id: string;
@@ -48,6 +49,13 @@ export type AccountOrder = {
   address: string;
   shipping: number;
   items: AccountOrderItem[];
+  buyerName?: string;
+  phone?: string;
+  job?: string;
+  deliveryDate?: string;
+  notes?: string;
+  postalCode?: string;
+  createdAt?: number;
 };
 
 const PROFILE_KEY = "regal-profile";
@@ -179,83 +187,64 @@ export function addressText(address: Address) {
   return text;
 }
 
-// سفارش‌های نمونه با کالای خود فروشگاه ساخته می‌شن
-function starterOrders(): AccountOrder[] {
-  const peach = products[0];
-  const white = products[2];
-  const mint = products[3];
+// سفارش‌های ساختگی قبلی را دیگر نشان نمی‌دهیم
+const SAMPLE_IDS = ["ord-1001", "ord-1002", "ord-1003"];
 
-  return [
-    {
-      id: "ord-1001",
-      status: "courier",
-      date: "پنجشنبه ۵ مهر ۱۴۰۳",
-      address: "تهران، نیاوران، خیابان باهنر، مجتمع حیات سبز، طبقه چهارم، واحد ۱۲۳",
-      shipping: 20000,
-      items: [
-        {
-          id: peach.id,
-          name: peach.name,
-          image: peach.image,
-          count: 1,
-          price: 997000,
-          discount: 200000,
-        },
-        {
-          id: mint.id,
-          name: mint.name,
-          image: mint.image,
-          count: 1,
-          price: 800000,
-          discount: 0,
-        },
-      ],
-    },
-    {
-      id: "ord-1002",
-      status: "preparing",
-      date: "دوشنبه ۲ مهر ۱۴۰۳",
-      address: "تهران، پاسداران، خیابان گلستان، پلاک ۲۸، واحد ۵",
-      shipping: 35000,
-      items: [
-        {
-          id: white.id,
-          name: white.name,
-          image: white.image,
-          count: 1,
-          price: 1480000,
-          discount: 200000,
-        },
-      ],
-    },
-    {
-      id: "ord-1003",
-      status: "pickup",
-      date: "شنبه ۲۴ شهریور ۱۴۰۳",
-      address: "تحویل حضوری از فروشگاه رگال، ونک",
-      shipping: 0,
-      items: [
-        {
-          id: peach.id,
-          name: peach.name,
-          image: peach.image,
-          count: 2,
-          price: 890000,
-          discount: 100000,
-        },
-      ],
-    },
-  ];
+function cleanStatus(status: string): OrderStatus {
+  if (status === "delivered") return "delivered";
+  return "pending";
 }
 
+// لیست واقعی سفارش‌ها. فروشگاه و ادمین هر دو همین را می‌خوانند.
 export function readOrders(): AccountOrder[] {
   const saved = readJson<AccountOrder[]>(ORDER_KEY);
-  if (!saved) {
-    const first = starterOrders();
-    window.localStorage.setItem(ORDER_KEY, JSON.stringify(first));
-    return first;
+  if (!saved) return [];
+
+  const next: AccountOrder[] = [];
+  let changed = false;
+
+  for (let i = 0; i < saved.length; i++) {
+    const order = saved[i];
+    if (SAMPLE_IDS.indexOf(order.id) !== -1) {
+      changed = true;
+      continue;
+    }
+
+    const status = cleanStatus(order.status);
+    if (status !== order.status) changed = true;
+    next.push({ ...order, status });
   }
-  return saved;
+
+  if (changed) {
+    window.localStorage.setItem(ORDER_KEY, JSON.stringify(next));
+  }
+
+  return next;
+}
+
+// سفارش تازه را بالای لیست می‌گذارد.
+// اگر همان کد رهگیری قبلاً ذخیره شده باشد، دوباره اضافه نمی‌شود.
+export function addOrder(order: AccountOrder) {
+  const list = readOrders();
+  const alreadySaved = list.some((item) => item.id === order.id);
+  if (alreadySaved) return;
+
+  const next = [order, ...list];
+  window.localStorage.setItem(ORDER_KEY, JSON.stringify(next));
+  notify();
+}
+
+// ادمین با این تابع وضعیت را «تحویل شده» می‌کند
+// چون هر دو صفحه همین لیست را می‌خوانند، فروشگاه هم عوض می‌شود
+export function markOrderDelivered(id: string) {
+  const list = readOrders();
+  const next = list.map((order) => {
+    if (order.id !== id) return order;
+    return { ...order, status: "delivered" as const };
+  });
+
+  window.localStorage.setItem(ORDER_KEY, JSON.stringify(next));
+  notify();
 }
 
 // تخفیف کل یک سفارش

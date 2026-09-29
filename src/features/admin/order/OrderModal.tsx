@@ -1,23 +1,14 @@
 "use client";
-{/* جزئیات یک سفارش.
 
+// جزئیات یک سفارش فروشگاه
+// دکمه «ثبت اتمام تحویل» وضعیت را در همان لیست تحویل‌شده می‌کند
 
-  
-اگر لیست ناقص باشد، GET /orders/:id جزئیات کامل را می‌گیرد
-نشان می‌دهد: نام، تلفن، آدرس، زمان ثبت، زمان تحویل درخواستی، وضعیت
-سبد خرید: تصویر | نام | قیمت | تعداد | مجموع — ستون تصویر جدا از نام است
-اگر هنوز تحویل نشده، دکمه «ثبت اتمام تحویل» → PATCH /orders/:id با { delivered: true }*/}
-import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getOrder, setOrderDelivered } from "@/lib/api/orders";
-import { formatDate, formatPrice } from "@/lib/format";
+import { formatDate, formatLongDate, formatPrice } from "@/lib/format";
 import {
-  isOrderDelivered,
-  orderCustomerName,
-  orderProductCount,
-  orderProductPrice,
-  type Order,
-} from "@/types/order";
+  markOrderDelivered,
+  orderPaid,
+  type AccountOrder,
+} from "@/lib/account";
 import Modal from "@/ui/Modal";
 import ProductPhoto from "@/ui/ProductPhoto";
 import OrderStatusBadge from "./OrderStatusBadge";
@@ -26,38 +17,15 @@ export default function OrderModal({
   order,
   onClose,
 }: {
-  order: Order | null;
+  order: AccountOrder | null;
   onClose: () => void;
 }) {
-  const queryClient = useQueryClient();
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(false);
+  const delivered = order?.status === "delivered";
 
-  const details = useQuery({
-    queryKey: ["admin-order", order?.id],
-    queryFn: () => getOrder(order!.id),
-    enabled: Boolean(order),
-    placeholderData: order ?? undefined,
-  });
-
-  const data = details.data ?? order;
-  const delivered = data ? isOrderDelivered(data.delivered) : false;
-
-  async function markDone() {
-    if (!data) return;
-    setSaving(true);
-    setError(false);
-
-    try {
-      await setOrderDelivered(data.id);
-      await queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
-      await queryClient.invalidateQueries({ queryKey: ["admin-order"] });
-      onClose();
-    } catch {
-      setError(true);
-    }
-
-    setSaving(false);
+  function markDone() {
+    if (!order) return;
+    markOrderDelivered(order.id);
+    onClose();
   }
 
   return (
@@ -66,7 +34,7 @@ export default function OrderModal({
       title="بررسی سفارش"
       onClose={onClose}
       footer={
-        data ? (
+        order ? (
           <>
             <button
               type="button"
@@ -78,45 +46,38 @@ export default function OrderModal({
             {!delivered ? (
               <button
                 type="button"
-                disabled={saving}
                 onClick={markDone}
-                className="rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-60"
+                className="rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90"
               >
-                {saving ? "در حال ثبت..." : "ثبت اتمام تحویل"}
+                ثبت اتمام تحویل
               </button>
             ) : null}
           </>
         ) : null
       }
     >
-      {data ? (
+      {order ? (
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-neutral-09">شماره سفارش: {data.id}</p>
-            <OrderStatusBadge delivered={data.delivered} />
+            <p className="text-sm text-neutral-09">شماره سفارش: {order.id}</p>
+            <OrderStatusBadge status={order.status} />
           </div>
 
           <dl className="grid gap-4 text-sm sm:grid-cols-2">
-            <div className="rounded-xl bg-neutral-01 px-4 py-3">
-              <dt className="text-neutral-08">نام کاربر</dt>
-              <dd className="mt-1 font-medium text-black">{orderCustomerName(data)}</dd>
-            </div>
-            <div className="rounded-xl bg-neutral-01 px-4 py-3">
-              <dt className="text-neutral-08">شماره تماس</dt>
-              <dd className="mt-1 font-medium text-black">{data.phone}</dd>
-            </div>
-            <div className="rounded-xl bg-neutral-01 px-4 py-3 sm:col-span-2">
-              <dt className="text-neutral-08">آدرس</dt>
-              <dd className="mt-1 font-medium leading-7 text-black">{data.address}</dd>
-            </div>
-            <div className="rounded-xl bg-neutral-01 px-4 py-3">
-              <dt className="text-neutral-08">زمان ثبت سفارش</dt>
-              <dd className="mt-1 font-medium text-black">{formatDate(data.createdAt)}</dd>
-            </div>
-            <div className="rounded-xl bg-neutral-01 px-4 py-3">
-              <dt className="text-neutral-08">زمان تحویل درخواستی</dt>
-              <dd className="mt-1 font-medium text-black">{formatDate(data.expectAt)}</dd>
-            </div>
+            <Info label="نام کاربر" value={order.buyerName || "—"} />
+            <Info label="شماره تماس" value={order.phone || "ثبت نشده"} />
+            <Info label="آدرس" value={order.address} wide />
+            <Info
+              label="زمان ثبت سفارش"
+              value={order.createdAt ? formatDate(order.createdAt) : order.date}
+            />
+            <Info
+              label="زمان تحویل درخواستی"
+              value={order.deliveryDate ? formatLongDate(order.deliveryDate) : "—"}
+            />
+            {order.job ? <Info label="شغل" value={order.job} /> : null}
+            {order.postalCode ? <Info label="کد پستی" value={order.postalCode} /> : null}
+            {order.notes ? <Info label="توضیحات" value={order.notes} wide /> : null}
           </dl>
 
           <div>
@@ -133,19 +94,17 @@ export default function OrderModal({
                   </tr>
                 </thead>
                 <tbody>
-                  {(data.products ?? []).map((item, index) => {
-                    const count = orderProductCount(item);
-                    const price = orderProductPrice(item);
-
+                  {order.items.map((item) => {
+                    const line = item.price * item.count;
                     return (
-                      <tr key={`${item.id}-${index}`} className="border-t border-neutral-03">
+                      <tr key={item.id} className="border-t border-neutral-03">
                         <td className="px-4 py-3">
                           <ProductPhoto src={item.image} alt={item.name} />
                         </td>
                         <td className="px-4 py-3 font-medium text-black">{item.name}</td>
-                        <td className="px-4 py-3 text-neutral-11">{formatPrice(price)}</td>
-                        <td className="px-4 py-3 text-neutral-11">{count}</td>
-                        <td className="px-4 py-3 text-black">{formatPrice(price * count)}</td>
+                        <td className="px-4 py-3 text-neutral-11">{formatPrice(item.price)}</td>
+                        <td className="px-4 py-3 text-neutral-11">{item.count}</td>
+                        <td className="px-4 py-3 text-black">{formatPrice(line)}</td>
                       </tr>
                     );
                   })}
@@ -153,15 +112,28 @@ export default function OrderModal({
               </table>
             </div>
             <p className="mt-4 text-left text-sm font-semibold text-black">
-              مجموع مبلغ: {formatPrice(data.prices)} تومان
+              مجموع مبلغ: {formatPrice(orderPaid(order))} تومان
             </p>
           </div>
-
-          {error ? (
-            <p className="text-sm text-red-600">ثبت تحویل انجام نشد. دوباره تلاش کنید.</p>
-          ) : null}
         </div>
       ) : null}
     </Modal>
+  );
+}
+
+function Info({
+  label,
+  value,
+  wide,
+}: {
+  label: string;
+  value: string;
+  wide?: boolean;
+}) {
+  return (
+    <div className={`rounded-xl bg-neutral-01 px-4 py-3 ${wide ? "sm:col-span-2" : ""}`}>
+      <p className="text-neutral-08">{label}</p>
+      <p className="mt-1 font-medium leading-7 text-black">{value}</p>
+    </div>
   );
 }

@@ -1,23 +1,26 @@
 "use client";
-{/* مودال افزودن و ویرایش.
 
-فیلدها: عکس، نام، دسته‌بندی، توضیحات HTML
-اگر عکس جدید انتخاب شود اول POST /upload می‌زند، بعد id فایل را با کالا ذخیره می‌کند
-کالای جدید: POST /products
-ویرایش: PATCH /products/:id
-قیمت و موجودی قبلی را دست نمی‌زند (آن‌ها مال صفحه موجودی‌اند)
-بعد از ذخیره، لیست کالا را از سرور دوباره می‌گیرد*/
-}
+// مودال افزودن و ویرایش کالا
+// فیلدها: چند عکس، نام، دسته کلی، دسته جزئی، قیمت، موجودی، توضیحات
+// قیمت و موجودی با خود کالا ذخیره می‌شوند تا در صفحه موجودی هم دیده شوند
+
 import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { categoryName, type Category, type Sub } from "@/lib/api/categories";
+import { fileUrl } from "@/lib/api/client";
+import { type Category, type Sub } from "@/lib/api/categories";
 import { uploadPhoto } from "@/lib/api/files";
-import { addProduct, editProduct, productPhoto, type Product } from "@/lib/api/products";
+import { addProduct, editProduct, type Product } from "@/lib/api/products";
 import Modal from "@/ui/Modal";
 import HtmlEditor from "./HtmlEditor";
 
 const inputClass =
   "h-11 w-full rounded-lg border border-neutral-03 bg-neutral-01 px-3 text-sm text-black outline-none focus:border-primary focus:bg-white";
+
+type PhotoItem = {
+  id?: string;
+  file?: File;
+  preview: string;
+};
 
 export default function ProductFormModal({
   open,
@@ -65,73 +68,108 @@ function Form({
   const queryClient = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
 
-  const options =
-    subs.length > 0
-      ? subs.map((sub) => ({
-          value: String(sub.id),
-          category: Number(sub.category),
-          subcategory: Number(sub.id),
-          text: categoryName(sub.category, sub.id, categories, subs),
-        }))
-      : categories.map((cat) => ({
-          value: String(cat.id),
-          category: Number(cat.id),
-          subcategory: undefined as number | undefined,
-          text: cat.name,
-        }));
-
-  const firstValue =
-    product?.subcategory && subs.length > 0
-      ? String(product.subcategory)
-      : product?.category
-        ? String(product.category)
-        : "";
-
   const [name, setName] = useState(product?.name ?? "");
-  const [category, setCategory] = useState(firstValue);
+  const [categoryId, setCategoryId] = useState(
+    product?.category ? String(product.category) : "",
+  );
+  const [subId, setSubId] = useState(
+    product?.subcategory ? String(product.subcategory) : "",
+  );
+  const [price, setPrice] = useState(product ? String(product.price ?? 0) : "");
+  const [quantity, setQuantity] = useState(
+    product ? String(product.quantity ?? 0) : "",
+  );
   const [html, setHtml] = useState(product?.description ?? "");
-  const [file, setFile] = useState<File | null>(null);
-  const [photo, setPhoto] = useState(product ? productPhoto(product) : undefined);
+  const [photos, setPhotos] = useState<PhotoItem[]>(existingPhotos(product));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  async function save(e: React.FormEvent) {
-    e.preventDefault();
+  // فقط زیردسته‌های همان دسته کلی
+  const subOptions = subs.filter((sub) => String(sub.category) === categoryId);
+
+  function changeCategory(value: string) {
+    setCategoryId(value);
+    const stillThere = subs.some((sub) => {
+      return String(sub.category) === value && String(sub.id) === subId;
+    });
+    if (!stillThere) setSubId("");
+  }
+
+  function addFiles(list: FileList | null) {
+    if (!list) return;
+    const next = photos.slice();
+
+    for (let i = 0; i < list.length; i++) {
+      const file = list[i];
+      next.push({
+        file,
+        preview: URL.createObjectURL(file),
+      });
+    }
+
+    setPhotos(next);
+  }
+
+  function removePhoto(index: number) {
+    const item = photos[index];
+    if (item?.file) URL.revokeObjectURL(item.preview);
+    const next = photos.filter((_, i) => i !== index);
+    setPhotos(next);
+  }
+
+  async function save(event: React.FormEvent) {
+    event.preventDefault();
     setError("");
 
-    const selected = options.find((item) => item.value === category);
     if (!name.trim()) {
       setError("نام کالا را وارد کنید.");
       return;
     }
-    if (!selected) {
-      setError("دسته‌بندی را انتخاب کنید.");
+    if (!categoryId) {
+      setError("دسته‌بندی کلی را انتخاب کنید.");
+      return;
+    }
+    if (subOptions.length > 0 && !subId) {
+      setError("دسته‌بندی جزئی را انتخاب کنید.");
+      return;
+    }
+    if (price.trim() === "") {
+      setError("قیمت را وارد کنید.");
+      return;
+    }
+    if (quantity.trim() === "") {
+      setError("موجودی را وارد کنید.");
+      return;
+    }
+    if (photos.length === 0) {
+      setError("حداقل یک عکس اضافه کنید.");
       return;
     }
 
     setSaving(true);
 
     try {
-      let photoId = "";
-      if (product) {
-        photoId = product.thumbnail || "";
-        if (!photoId && product.image && product.image[0]) {
-          photoId = product.image[0];
+      const photoIds: string[] = [];
+
+      for (let i = 0; i < photos.length; i++) {
+        const item = photos[i];
+        if (item.file) {
+          const id = await uploadPhoto(item.file);
+          photoIds.push(id);
+        } else if (item.id) {
+          photoIds.push(item.id);
         }
-      }
-      if (file) {
-        photoId = await uploadPhoto(file);
       }
 
       const body = {
         name: name.trim(),
         brand: product?.brand ?? "",
-        image: photoId ? [photoId] : [],
-        thumbnail: photoId ?? "",
-        price: product?.price ?? 0,
-        quantity: product?.quantity ?? 0,
-        category: selected.category,
-        subcategory: selected.subcategory,
+        image: photoIds,
+        thumbnail: photoIds[0] ?? "",
+        price: Number(price) || 0,
+        quantity: Number(quantity) || 0,
+        category: Number(categoryId),
+        subcategory: subId ? Number(subId) : undefined,
         description: html,
         createdAt: product?.createdAt ?? Date.now(),
       };
@@ -143,6 +181,7 @@ function Form({
       }
 
       await queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-inventory"] });
       onClose();
     } catch {
       setError("ذخیره کالا انجام نشد.");
@@ -153,27 +192,35 @@ function Form({
 
   return (
     <form className="space-y-5" onSubmit={save}>
-      <label className="flex flex-col gap-2 text-sm text-neutral-11">
-        <span>تصویر کالا</span>
+      <div className="flex flex-col gap-2 text-sm text-neutral-11">
+        <span>تصاویر کالا</span>
         <div className="flex flex-wrap items-center gap-3">
-          {photo ? (
-            <img
-              src={photo}
-              alt={name || "تصویر کالا"}
-              className="size-16 rounded-lg bg-neutral-03 object-cover"
-            />
-          ) : (
-            <div className="size-16 rounded-lg bg-neutral-03" />
-          )}
+          {photos.map((item, index) => (
+            <div key={item.preview} className="relative">
+              <img
+                src={item.preview}
+                alt=""
+                className="size-16 rounded-lg bg-neutral-03 object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => removePhoto(index)}
+                className="absolute -top-2 -left-2 flex size-5 items-center justify-center rounded-full bg-black text-xs text-white"
+                aria-label="حذف عکس"
+              >
+                ×
+              </button>
+            </div>
+          ))}
           <input
             ref={fileInput}
             type="file"
             accept="image/*"
+            multiple
             className="sr-only"
-            onChange={(e) => {
-              const next = e.target.files?.[0] ?? null;
-              setFile(next);
-              if (next) setPhoto(URL.createObjectURL(next));
+            onChange={(event) => {
+              addFiles(event.target.files);
+              event.target.value = "";
             }}
           />
           <button
@@ -181,35 +228,79 @@ function Form({
             onClick={() => fileInput.current?.click()}
             className="rounded-lg border border-neutral-03 px-3 py-2 text-sm text-neutral-11 hover:bg-neutral-03"
           >
-            انتخاب عکس
+            افزودن عکس
           </button>
         </div>
-      </label>
+      </div>
 
       <label className="flex flex-col gap-2 text-sm text-neutral-11">
         <span>نام کالا</span>
         <input
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(event) => setName(event.target.value)}
           className={inputClass}
         />
       </label>
 
-      <label className="flex flex-col gap-2 text-sm text-neutral-11">
-        <span>دسته‌بندی</span>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className={inputClass}
-        >
-          <option value="">انتخاب کنید</option>
-          {options.map((item, index) => (
-            <option key={`option-${item.value}-${index}`} value={item.value}>
-              {item.text}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-2 text-sm text-neutral-11">
+          <span>دسته‌بندی کلی</span>
+          <select
+            value={categoryId}
+            onChange={(event) => changeCategory(event.target.value)}
+            className={inputClass}
+          >
+            <option value="">انتخاب کنید</option>
+            {categories.map((item) => (
+              <option key={item.id} value={String(item.id)}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-2 text-sm text-neutral-11">
+          <span>دسته‌بندی جزئی</span>
+          <select
+            value={subId}
+            onChange={(event) => setSubId(event.target.value)}
+            className={inputClass}
+            disabled={!categoryId || subOptions.length === 0}
+          >
+            <option value="">
+              {categoryId && subOptions.length === 0
+                ? "زیردسته ندارد"
+                : "انتخاب کنید"}
             </option>
-          ))}
-        </select>
-      </label>
+            {subOptions.map((item) => (
+              <option key={item.id} value={String(item.id)}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-2 text-sm text-neutral-11">
+          <span>قیمت (تومان)</span>
+          <input
+            value={price}
+            inputMode="numeric"
+            onChange={(event) => setPrice(onlyDigits(event.target.value))}
+            className={inputClass}
+          />
+        </label>
+        <label className="flex flex-col gap-2 text-sm text-neutral-11">
+          <span>موجودی</span>
+          <input
+            value={quantity}
+            inputMode="numeric"
+            onChange={(event) => setQuantity(onlyDigits(event.target.value))}
+            className={inputClass}
+          />
+        </label>
+      </div>
 
       <div className="flex flex-col gap-2 text-sm text-neutral-11">
         <span>توضیحات</span>
@@ -229,4 +320,38 @@ function Form({
       </div>
     </form>
   );
+}
+
+function existingPhotos(product: Product | null) {
+  const photos: PhotoItem[] = [];
+  if (!product) return photos;
+
+  const ids =
+    product.image && product.image.length > 0
+      ? product.image
+      : product.thumbnail
+        ? [product.thumbnail]
+        : [];
+
+  for (let i = 0; i < ids.length; i++) {
+    const preview = fileUrl(ids[i]);
+    if (!preview) continue;
+    photos.push({ id: ids[i], preview });
+  }
+
+  return photos;
+}
+
+function onlyDigits(value: string) {
+  const persian = "۰۱۲۳۴۵۶۷۸۹";
+  let result = "";
+
+  for (let i = 0; i < value.length; i++) {
+    const char = value[i];
+    const persianIndex = persian.indexOf(char);
+    if (persianIndex !== -1) result = result + String(persianIndex);
+    else if (char >= "0" && char <= "9") result = result + char;
+  }
+
+  return result;
 }
