@@ -80,12 +80,19 @@ export type HomeLook = {
   featured?: boolean;
 };
 
+// یک ردیف دسته در صفحه خانه: عنوان و حداکثر چهار کالا
+export type FeaturedGroup = {
+  title: string;
+  products: CardProduct[];
+};
+
 export type HomeCatalog = {
   heroLooks: HomeLook[];
   heroFeatured?: HomeLook;
   categories: CardCategory[];
   bodyLooks: HomeLook[];
   discountProducts: CardProduct[];
+  featuredGroups: FeaturedGroup[];
   brandLook: HomeLook;
   blogImages: string[];
   testimonialAvatars: string[];
@@ -147,20 +154,34 @@ export async function getHomeCatalog(): Promise<HomeCatalog> {
   let products: Product[] = [];
   let categories: Category[] = [];
   let subs: Sub[] = [];
+  let eveningProducts: Product[] = [];
+  let blouseProducts: Product[] = [];
+  let shortDressProducts: Product[] = [];
 
   try {
-    const [productResult, categoryResult, subResult, eveningResult] =
-      await Promise.all([
-        getProducts(1, undefined, undefined, 80),
-        getCategories(),
-        getSubs(),
-        getProducts(1, 1, 1, 20),
-      ]);
+    const [
+      productResult,
+      categoryResult,
+      subResult,
+      eveningResult,
+      blouseResult,
+      shortDressResult,
+    ] = await Promise.all([
+      getProducts(1, undefined, undefined, 80),
+      getCategories(),
+      getSubs(),
+      getProducts(1, 1, 1, 12),
+      getProducts(1, 2, undefined, 12),
+      getProducts(1, 5, undefined, 12),
+    ]);
     products = productResult.data || [];
     categories = categoryResult.data || [];
     subs = subResult.data || [];
+    eveningProducts = eveningResult.data || [];
+    blouseProducts = blouseResult.data || [];
+    shortDressProducts = shortDressResult.data || [];
 
-    const eveningPhotos = eveningResult.data || [];
+    const eveningPhotos = eveningProducts;
     for (const item of eveningPhotos) {
       if (!products.some((product) => product.id === item.id)) {
         products.push(item);
@@ -225,6 +246,17 @@ export async function getHomeCatalog(): Promise<HomeCatalog> {
     categories: categoryCards,
     bodyLooks,
     discountProducts: discounted,
+    // بالای نظرات: دسته ۵ پیراهن کوتاه و دسته ۲ شومیز
+    featuredGroups: [
+      {
+        title: "پیراهن کوتاه",
+        products: withPhoto(shortDressProducts).slice(0, 4).map(toCardProduct),
+      },
+      {
+        title: "شومیز",
+        products: withPhoto(blouseProducts).slice(0, 4).map(toCardProduct),
+      },
+    ],
     brandLook: {
       alt: brandProduct?.name || "رگال",
       src: productPhoto(brandProduct) || "",

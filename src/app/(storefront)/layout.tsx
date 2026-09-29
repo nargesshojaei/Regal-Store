@@ -8,6 +8,7 @@ export default function StorefrontLayout({
 }>) {
   return (
     <>
+      {/* هدر و فوتر روی همه صفحات فروشگاه ثابت می‌مانند */}
       <Header />
       <main className="min-h-screen bg-white">{children}</main>
       <Footer />
