@@ -33,12 +33,32 @@ function writeItems(items: CartProduct[]) {
   window.dispatchEvent(new Event(EVENT));
 }
 
+// درگاه و ثبت سفارش بدون هوک هم بتوانند سبد را بخوانند
+export function readCart(): CartProduct[] {
+  return readItems();
+}
+
+// جمع سبد = قیمت هر کالا ضربدر تعدادش
+export function cartTotal(items: CartProduct[]) {
+  return items.reduce((sum, item) => sum + item.price * item.count, 0);
+}
+
+// فقط بعد از پرداخت موفق صدا زده می‌شود
+export function clearCart() {
+  if (typeof window === "undefined") return;
+  writeItems([]);
+}
+
 export function useCart() {
   const [items, setItems] = useState<CartProduct[]>([]);
+  // تا ready نشود، خالی بودن سبد را جدی نگیر
+  // چون localStorage فقط داخل مرورگر قابل خواندن است
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     function sync() {
       setItems(readItems());
+      setReady(true);
     }
 
     sync();
@@ -87,8 +107,13 @@ export function useCart() {
     setItems(next);
   }
 
-  const totalCount = items.reduce((sum, item) => sum + item.count, 0);
-  const totalPrice = items.reduce((sum, item) => sum + item.price * item.count, 0);
+  function clear() {
+    clearCart();
+    setItems([]);
+  }
 
-  return { items, add, changeCount, remove, totalCount, totalPrice };
+  const totalCount = items.reduce((sum, item) => sum + item.count, 0);
+  const totalPrice = cartTotal(items);
+
+  return { items, add, changeCount, remove, clear, totalCount, totalPrice, ready };
 }

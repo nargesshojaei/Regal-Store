@@ -2,6 +2,8 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import type { CartProduct } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 
+
+
 export default function CartItem({
   item,
   onChangeCount,

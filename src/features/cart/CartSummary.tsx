@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { formatPrice } from "@/lib/format";
-import Button from "@/ui/Button";
 
 export default function CartSummary({
   totalPrice,
@@ -19,9 +19,13 @@ export default function CartSummary({
         <span>مبلغ کل</span>
         <span>{formatPrice(totalPrice)} تومان</span>
       </div>
-      <Button href="/checkout" className="mt-6 w-full">
-        ادامه خرید
-      </Button>
+      {/* از اینجا می‌رویم فرم اطلاعات خریدار */}
+      <Link
+        href="/checkout"
+        className="mt-6 flex h-12 w-full items-center justify-center rounded-lg bg-primary text-sm text-white transition-colors hover:bg-primary-shade-08"
+      >
+        نهایی کردن سبد خرید
+      </Link>
     </aside>
   );
 }

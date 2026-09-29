@@ -20,7 +20,7 @@ export default function CartPage() {
           </Link>
         </p>
       ) : (
-        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div>
             {items.map((item) => (
               <CartItem
