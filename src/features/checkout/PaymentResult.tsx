@@ -46,6 +46,7 @@ export default function PaymentResult({ status }: PaymentResultProps) {
     return <p className="px-6 py-24 text-center text-sm text-neutral-09">در حال بارگذاری...</p>;
   }
 
+  
   let title = "پرداخت شما ناموفق بود!";
   let description =
     "سفارش ثبت نشده است. سبد خرید باقی مانده و می‌توانید دوباره پرداخت کنید.";

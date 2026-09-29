@@ -1,6 +1,8 @@
 // آدرس ?status=success صفحه موفق است. هر مقدار دیگر صفحه ناموفق است.
 import PaymentResult from "@/features/checkout/PaymentResult";
 
+
+
 type CheckoutResultPageProps = {
   searchParams: Promise<{ status?: string }>;
 };
