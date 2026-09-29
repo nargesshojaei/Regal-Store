@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>فایل‌های برنچ Level4</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 32px 24px 64px;
+      background: #fafafa;
+      color: #23242e;
+      font-family: Tahoma, "Segoe UI", sans-serif;
+      line-height: 1.7;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+    h2 {
+      margin: 36px 0 10px;
+      font-size: 18px;
+    }
+    p {
+      margin: 0 0 8px;
+      color: #6d6d74;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid #f2f2f3;
+      margin-bottom: 8px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f2f2f3;
+      text-align: right;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      background: #efe9e4;
+      color: #231d18;
+      font-weight: 700;
+    }
+    tr:hover td {
+      background: #fafafa;
+    }
+    td:first-child, th:first-child {
+      width: 48px;
+      text-align: center;
+      color: #6d6d74;
+    }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      direction: ltr;
+      unicode-bidi: embed;
+      color: #231d18;
+    }
+  </style>
+</head>
+<body>
+  <h1>فایل‌های برنچ Level4</h1>
+  <p>خرید از سبد تا سفارش حساب. هر فیچر جدول جدا دارد.</p>
+  <p>مسیر: سبد خرید ← فرم خریدار ← درگاه ← نتیجه موفق یا ناموفق.</p>
+
+  <h2>سبد خرید</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/app/(storefront)/cart/page.tsx</code></td><td>صفحه سبد است. اگر خالی باشد لینک فروشگاه را نشان می‌دهد وگرنه کالاها و خلاصه را کنار هم می‌چیند.</td></tr>
+      <tr><td>2</td><td><code>src/features/cart/CartItem.tsx</code></td><td>یک ردیف کالا است: عکس، نام، قیمت، دکمه‌های کم و زیاد، و حذف.</td></tr>
+      <tr><td>3</td><td><code>src/features/cart/CartSummary.tsx</code></td><td>تعداد و مبلغ کل را نشان می‌دهد. دکمه «نهایی کردن سبد خرید» به فرم خریدار می‌رود.</td></tr>
+      <tr><td>4</td><td><code>src/lib/cart.ts</code></td><td>سبد را در localStorage نگه می‌دارد. افزودن، تغییر تعداد، حذف، جمع قیمت و خالی‌کردن سبد اینجاست.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>فرم اطلاعات خریدار</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/app/(storefront)/checkout/page.tsx</code></td><td>آدرس <code>/checkout</code> است و فرم خریدار را نشان می‌دهد.</td></tr>
+      <tr><td>2</td><td><code>src/features/checkout/CheckoutSteps.tsx</code></td><td>سه قدم بالای صفحه است: سبد خرید، تکمیل اطلاعات، پرداخت.</td></tr>
+      <tr><td>3</td><td><code>src/features/checkout/CheckoutForm.tsx</code></td><td>نام، نام خانوادگی، شغل، آدرس، کد پستی، تاریخ تحویل از تقویم و توضیحات را می‌گیرد. کنارش خلاصه سبد است. با دکمه پرداخت، اطلاعات ذخیره می‌شود و کاربر می‌رود درگاه.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>درگاه پرداخت</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/app/(storefront)/checkout/pay/page.tsx</code></td><td>آدرس <code>/checkout/pay</code> است. درگاه داخل قاب فروشگاه است و هدر و فوتر را دارد.</td></tr>
+      <tr><td>2</td><td><code>src/features/checkout/PaymentGateway.tsx</code></td><td>فقط ظاهر درگاه است: شماره کارت، CVV2، تاریخ انقضا، کد امنیتی، رمز دوم و ایمیل. این مقدارها ذخیره نمی‌شوند. دکمه پرداخت به صفحه موفق می‌رود. دکمه انصراف به صفحه ناموفق می‌رود و سبد را پاک نمی‌کند.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>پرداخت موفق</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/lib/checkout.ts</code></td><td>تابع ثبت پرداخت موفق سفارش را با وضعیت «در انتظار ارسال» می‌سازد، در لیست مشترک با ادمین می‌گذارد، سبد را خالی می‌کند و کد رهگیری را نگه می‌دارد.</td></tr>
+      <tr><td>2</td><td><code>src/app/(storefront)/checkout/result/page.tsx</code></td><td>اگر آدرس <code>?status=success</code> باشد صفحه موفق را نشان می‌دهد.</td></tr>
+      <tr><td>3</td><td><code>src/features/checkout/PaymentResult.tsx</code></td><td>تیک سبز، متن «پرداخت شما با موفقیت انجام شد»، کد رهگیری، دکمه پیگیری سفارش و بازگشت به صفحه اصلی را نشان می‌دهد.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>پرداخت ناموفق</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/features/checkout/PaymentGateway.tsx</code></td><td>دکمه انصراف، و تمام شدن زمان ده دقیقه‌ای، بدون پاک کردن سبد به صفحه ناموفق می‌روند.</td></tr>
+      <tr><td>2</td><td><code>src/app/(storefront)/checkout/result/page.tsx</code></td><td>هر وضعیتی غیر از success صفحه ناموفق است.</td></tr>
+      <tr><td>3</td><td><code>src/features/checkout/PaymentResult.tsx</code></td><td>ضربدر قرمز، متن «پرداخت شما ناموفق بود»، دکمه پرداخت مجدد و بازگشت به سبد خرید را نشان می‌دهد. سبد همان کالاها را دارد.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>سفارش در حساب کاربر</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/lib/account.ts</code></td><td>لیست مشترک سفارش است. سفارش نمونه ندارد. پرداخت موفق سفارش را اضافه می‌کند و تحویل ادمین وضعیت را «تحویل شده» می‌کند.</td></tr>
+      <tr><td>2</td><td><code>src/app/(storefront)/account/orders/page.tsx</code></td><td>صفحه سفارش‌های کاربر است. دکمه «پیگیری سفارش» به اینجا می‌آید.</td></tr>
+      <tr><td>3</td><td><code>src/features/account/OrdersPanel.tsx</code></td><td>فقط سفارش ثبت‌شده را نشان می‌دهد. وضعیت «در انتظار ارسال» یا «تحویل داده شده» است و با ادمین یکی است.</td></tr>
+      <tr><td>4</td><td><code>src/features/admin/order/OrderTable.tsx</code></td><td>همان سفارش‌های فروشگاه را در ادمین با فیلتر در انتظار و تحویل‌شده نشان می‌دهد.</td></tr>
+      <tr><td>5</td><td><code>src/features/admin/order/OrderModal.tsx</code></td><td>جزئیات سفارش است. دکمه «ثبت اتمام تحویل» وضعیت را در فروشگاه هم تحویل‌شده می‌کند.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>منطق مشترک خرید</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/lib/checkout.ts</code></td><td>پیش‌نویس فرم را در sessionStorage نگه می‌دارد، کد رهگیری می‌سازد، رقم فارسی کد پستی را انگلیسی می‌کند و پرداخت موفق را ثبت می‌کند.</td></tr>
+      <tr><td>2</td><td><code>src/lib/format.ts</code></td><td>قیمت، رقم فارسی، تاریخ تحویل و تاریخ امروز سفارش را به متن خوانا تبدیل می‌کند.</td></tr>
+      <tr><td>3</td><td><code>src/lib/cart.ts</code></td><td>خواندن سبد، جمع مبلغ و خالی کردن سبد را به فرم، درگاه و ثبت سفارش می‌دهد.</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>
