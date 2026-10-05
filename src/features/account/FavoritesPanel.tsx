@@ -11,6 +11,7 @@ import { products as localProducts } from "@/data/Products";
 import { getProducts } from "@/lib/api/products";
 import { toCardProduct } from "@/lib/api/home";
 import { useCart } from "@/lib/cart";
+import { cartLineId, colorHex } from "@/lib/variants";
 import { useWishlist } from "@/lib/wishlist";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/types/product";
@@ -24,6 +25,10 @@ export default function FavoritesPanel() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [addedId, setAddedId] = useState("");
+  const [note, setNote] = useState("");
+  const [noteFor, setNoteFor] = useState("");
+  const [pickedColor, setPickedColor] = useState<Record<string, string>>({});
+  const [pickedSize, setPickedSize] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -61,14 +66,24 @@ export default function FavoritesPanel() {
   }, [ids]);
 
   function addToCart(product: Product) {
-    add({
+    const color = pickedColor[product.id] || product.colors?.[0]?.name || "";
+    const size = pickedSize[product.id] || product.sizes?.[0] || "";
+    const picked = product.colors?.find((item) => item.name === color);
+    const result = add({
       id: product.id,
+      lineId: cartLineId(product.id, color, size),
       name: product.name,
       price: product.price,
       image: product.image,
       count: 1,
+      color,
+      colorHex: picked?.hex || (color ? colorHex(color) : ""),
+      size,
+      stock: product.stock,
     });
-    setAddedId(product.id);
+    setNote(result.message);
+    setNoteFor(product.id);
+    setAddedId(result.ok ? product.id : "");
   }
 
   return (
@@ -105,7 +120,34 @@ export default function FavoritesPanel() {
               </Link>
 
               <div className="space-y-2 px-1">
-                <ColorSwatch colors={product.colors} />
+                <ColorSwatch
+                  colors={product.colors}
+                  selected={pickedColor[product.id] || product.colors?.[0]?.name || ""}
+                  onSelect={(name) =>
+                    setPickedColor((current) => ({ ...current, [product.id]: name }))
+                  }
+                />
+                {product.sizes && product.sizes.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {product.sizes.map((size) => {
+                      const active = (pickedSize[product.id] || product.sizes?.[0]) === size;
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() =>
+                            setPickedSize((current) => ({ ...current, [product.id]: size }))
+                          }
+                          className={`rounded-full border px-2 py-0.5 text-[11px] ${
+                            active ? "border-black text-black" : "border-neutral-03 text-neutral-08"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
                 <p className="text-sm text-black">{product.name}</p>
                 <p className="text-sm text-neutral-11">
                   {formatPrice(product.price)} تومان
@@ -119,6 +161,11 @@ export default function FavoritesPanel() {
               >
                 {addedId === product.id ? "به سبد اضافه شد" : "افزودن به سبد خرید"}
               </Button>
+              {noteFor === product.id && note ? (
+                <p className={`text-xs ${addedId === product.id ? "text-primary" : "text-red-600"}`}>
+                  {note}
+                </p>
+              ) : null}
             </Card>
           ))}
         </div>

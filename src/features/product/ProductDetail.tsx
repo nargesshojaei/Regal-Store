@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import type { DetailProduct } from "@/lib/api/home";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
+import { cartLineId } from "@/lib/variants";
 import type { Product } from "@/types/product";
 import Button from "@/ui/Button";
 import ColorSwatch from "@/ui/ColorSwatch";
@@ -62,17 +63,33 @@ function CountBox({
 export default function ProductDetail({
   product,
   similar,
+  pickedColor = "",
 }: {
   product: DetailProduct;
   similar: Product[];
+  pickedColor?: string;
 }) {
-  const { add } = useCart();
+  const cart = useCart();
+  const colors = product.colors || [];
+  const firstColor = colors.some((item) => item.name === pickedColor)
+    ? pickedColor
+    : colors[0]?.name || "";
   const [count, setCount] = useState(1);
   const [size, setSize] = useState(product.sizes[0] || "");
+  const [color, setColor] = useState(firstColor);
+  const [note, setNote] = useState("");
   const [added, setAdded] = useState(false);
 
-  const maxCount = product.stock > 0 ? product.stock : 1;
-  const inStock = product.stock > 0;
+  const reserved = cart.items
+    .filter((item) => item.id === product.id)
+    .reduce((sum, item) => sum + item.count, 0);
+  const room = Math.max(0, product.stock - reserved);
+  const maxCount = room > 0 ? room : 1;
+  const inStock = product.stock > 0 && room > 0;
+
+  useEffect(() => {
+    if (room > 0 && count > room) setCount(room);
+  }, [room, count]);
   const totalPrice = product.price * count;
   const oldTotal = product.originalPrice
     ? product.originalPrice * count
@@ -83,14 +100,21 @@ export default function ProductDetail({
   function addToCart() {
     if (!inStock) return;
 
-    add({
+    const picked = colors.find((item) => item.name === color);
+    const result = cart.add({
       id: product.id,
+      lineId: cartLineId(product.id, color, size),
       name: product.name,
       price: product.price,
       image: product.image,
       count,
+      color,
+      colorHex: picked?.hex || "",
+      size,
+      stock: product.stock,
     });
-    setAdded(true);
+    setNote(result.message);
+    setAdded(result.ok);
   }
 
   return (
@@ -175,10 +199,20 @@ export default function ProductDetail({
             </p>
           ) : null}
 
-          {product.colors && product.colors.length > 0 ? (
+          {colors.length > 0 ? (
             <div className="mt-6">
-              <p className="mb-2 text-sm text-neutral-11">رنگ‌بندی</p>
-              <ColorSwatch colors={product.colors} />
+              <p className="mb-2 text-sm text-neutral-11">
+                رنگ‌بندی{color ? `: ${color}` : ""}
+              </p>
+              <ColorSwatch
+                colors={colors}
+                selected={color}
+                size="md"
+                onSelect={(name) => {
+                  setColor(name);
+                  setAdded(false);
+                }}
+              />
             </div>
           ) : null}
 
@@ -190,7 +224,10 @@ export default function ProductDetail({
                   <button
                     key={item}
                     type="button"
-                    onClick={() => setSize(item)}
+                    onClick={() => {
+                      setSize(item);
+                      setAdded(false);
+                    }}
                     className={`min-w-10 rounded-lg border px-3 py-2 text-sm ${
                       size === item
                         ? "border-black text-black"
@@ -214,7 +251,11 @@ export default function ProductDetail({
               }}
             />
             <p className="text-sm text-neutral-08">
-              {inStock ? `${product.stock} عدد موجود` : "ناموجود"}
+              {product.stock <= 0
+                ? "ناموجود"
+                : room <= 0
+                  ? `سقف موجودی (${product.stock} عدد) در سبد پر شده است`
+                  : `${product.stock} عدد موجود`}
             </p>
           </div>
 
@@ -227,12 +268,17 @@ export default function ProductDetail({
               <ShoppingBag className="size-4" strokeWidth={1.5} />
               افزودن به سبد خرید
             </Button>
-            {added ? (
-              <p className="mt-3 text-sm text-primary">
-                به سبد اضافه شد.{" "}
-                <Link href="/cart" className="underline">
-                  مشاهده سبد
-                </Link>
+            {note ? (
+              <p className={`mt-3 text-sm ${added ? "text-primary" : "text-red-600"}`}>
+                {note}
+                {added ? (
+                  <>
+                    {" "}
+                    <Link href="/cart" className="underline">
+                      مشاهده سبد
+                    </Link>
+                  </>
+                ) : null}
               </p>
             ) : null}
           </div>

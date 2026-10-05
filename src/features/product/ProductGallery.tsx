@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Badge from "@/ui/Badge";
 import LookImage from "@/ui/LookImage";
+import SafeImage from "@/ui/SafeImage";
 
 // گالری عکس کالا
 // عکس بزرگ + لیست عکس‌ها که اسکرول می‌شوند
@@ -60,7 +61,7 @@ export default function ProductGallery({
                 aria-label={`عکس ${photoIndex + 1}`}
               >
                 {src ? (
-                  <img
+                  <SafeImage
                     src={src}
                     alt=""
                     className="size-full object-cover object-top"

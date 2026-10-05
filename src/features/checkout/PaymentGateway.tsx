@@ -4,14 +4,13 @@
 
 
 // فقط ظاهر درگاه است.
-// اطلاعات کارت در state می‌ماند و جایی ذخیره یا ارسال نمی‌شود.
-// دکمه پرداخت: سفارش ثبت می‌شود، سبد خالی می‌شود، صفحه موفق باز می‌شود.
-// دکمه انصراف: سبد می‌ماند و صفحه ناموفق باز می‌شود.
+// فیلدها جایی ذخیره یا ارسال نمی‌شوند.
+// دکمه پرداخت صفحه موفق را باز می‌کند و دکمه انصراف صفحه ناموفق را.
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Clock, CreditCard, Grid3x3, RefreshCw } from "lucide-react";
+import { Clock, CreditCard, Grid3x3 } from "lucide-react";
 import { cartTotal, readCart } from "@/lib/cart";
 import { commitSuccessfulPayment, readDraft, readReceipt } from "@/lib/checkout";
 import { faDigits, formatPrice } from "@/lib/format";
@@ -20,10 +19,6 @@ const inputClass =
   "h-11 w-full rounded-lg border border-[#e6e6ea] bg-white px-3 text-sm text-black outline-none focus:border-[#e11d74]";
 
 const START_SECONDS = 10 * 60;
-
-function makeCaptcha() {
-  return String(Math.floor(10000 + Math.random() * 90000));
-}
 
 function onlyDigits(value: string) {
   let digits = "";
@@ -60,17 +55,13 @@ export default function PaymentGateway() {
   const [blocked, setBlocked] = useState<"none" | "missing" | "empty">("none");
   const [amount, setAmount] = useState(0);
   const [left, setLeft] = useState(START_SECONDS);
-  const [captcha, setCaptcha] = useState(makeCaptcha);
   const [card, setCard] = useState("");
   const [cvv, setCvv] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
-  const [captchaInput, setCaptchaInput] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     const draft = readDraft();
@@ -104,21 +95,12 @@ export default function PaymentGateway() {
   }, [blocked, left, ready, router]);
 
   function pay() {
-    if (pending) return;
-
-    setError("");
-    setPending(true);
-
-    let receipt = commitSuccessfulPayment();
-    if (!receipt) receipt = readReceipt();
-
-    if (!receipt) {
-      setPending(false);
-      setError("سبد خرید خالی است.");
+    const receipt = commitSuccessfulPayment();
+    if (receipt || readReceipt()) {
+      router.push("/checkout/result?status=success");
       return;
     }
-
-    router.push("/checkout/result?status=success");
+    router.push("/checkout/result?status=failed");
   }
 
   function cancel() {
@@ -235,33 +217,6 @@ export default function PaymentGateway() {
               </div>
             </GatewayRow>
 
-            <GatewayRow label="کد امنیتی:" hint="عدد داخل تصویر را وارد کنید">
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className="inline-flex h-11 min-w-28 items-center justify-center rounded-lg bg-[repeating-linear-gradient(135deg,#f3f3f5,#f3f3f5_6px,#e7e7ea_6px,#e7e7ea_7px)] font-mono text-lg tracking-[0.35em] text-neutral-12 select-none"
-                  aria-hidden
-                >
-                  {faDigits(captcha)}
-                </span>
-                <input
-                  value={captchaInput}
-                  onChange={(event) => setCaptchaInput(event.target.value)}
-                  inputMode="numeric"
-                  dir="ltr"
-                  className={`${inputClass} max-w-36 text-left`}
-                  autoComplete="off"
-                />
-                <button
-                  type="button"
-                  aria-label="کد جدید"
-                  onClick={() => setCaptcha(makeCaptcha())}
-                  className="flex size-11 items-center justify-center rounded-lg border border-[#e6e6ea] text-[#7c3aed]"
-                >
-                  <RefreshCw className="size-4" />
-                </button>
-              </div>
-            </GatewayRow>
-
             <GatewayRow label="رمز دوم (رمز اینترنتی):" hint="رمز پویا یا رمز اینترنتی کارت">
               <div className="flex flex-wrap items-center gap-2">
                 <input
@@ -301,8 +256,6 @@ export default function PaymentGateway() {
             </GatewayRow>
           </div>
 
-          {error ? <p className="mt-4 text-sm text-red-500">{error}</p> : null}
-
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             <button
               type="button"
@@ -313,8 +266,7 @@ export default function PaymentGateway() {
             </button>
             <button
               type="submit"
-              disabled={pending}
-              className="h-12 rounded-xl bg-[#22c55e] text-sm font-medium text-white transition-colors hover:bg-[#16a34a] disabled:opacity-60"
+              className="h-12 rounded-xl bg-[#22c55e] text-sm font-medium text-white transition-colors hover:bg-[#16a34a]"
             >
               پرداخت
             </button>

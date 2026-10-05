@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { faDigits, formatLongDate, formatPrice } from "@/lib/format";
+import { ColorText } from "@/ui/VariantText";
 import {
   orderDiscount,
   orderPaid,
@@ -148,11 +149,11 @@ function OrderCard({
 
 // شغل، کد پستی و توضیحات داخل «جزئیات سفارش» دیده می‌شوند
 function OrderExtra({ order }: { order: AccountOrder }) {
-  if (!order.job && !order.postalCode && !order.notes) return null;
+  if (!order.phone && !order.postalCode && !order.notes) return null;
 
   return (
     <div className="grid gap-2 rounded-xl bg-neutral-01 px-4 py-3 text-xs text-neutral-11 sm:grid-cols-2">
-      {order.job ? <p>شغل: {order.job}</p> : null}
+      {order.phone ? <p>شماره تلفن: {faDigits(order.phone)}</p> : null}
       {order.postalCode ? <p>کد پستی: {faDigits(order.postalCode)}</p> : null}
       {order.notes ? <p className="sm:col-span-2">توضیحات: {order.notes}</p> : null}
     </div>
@@ -166,6 +167,8 @@ function OrderTable({ order }: { order: AccountOrder }) {
         <thead className="bg-neutral-01 text-neutral-09">
           <tr>
             <th className="px-3 py-2 text-right font-normal">عنوان کالا</th>
+            <th className="px-3 py-2 font-normal">رنگ</th>
+            <th className="px-3 py-2 font-normal">سایز</th>
             <th className="px-3 py-2 font-normal">تعداد</th>
             <th className="px-3 py-2 font-normal">قیمت</th>
             <th className="px-3 py-2 font-normal">تخفیف</th>
@@ -178,6 +181,10 @@ function OrderTable({ order }: { order: AccountOrder }) {
             return (
               <tr key={item.id} className="border-t border-neutral-03">
                 <td className="px-3 py-3 text-black">{item.name}</td>
+                <td className="px-3 py-3 text-center">
+                  <ColorText name={item.color} hex={item.colorHex} />
+                </td>
+                <td className="px-3 py-3 text-center">{item.size || "—"}</td>
                 <td className="px-3 py-3 text-center">{formatPrice(item.count)}</td>
                 <td className="px-3 py-3 text-center">{formatPrice(item.price)}</td>
                 <td className="px-3 py-3 text-center">

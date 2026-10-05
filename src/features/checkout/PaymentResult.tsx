@@ -1,14 +1,13 @@
 "use client";
 
 // صفحه آخر خرید.
-// موفق: کد رهگیری را نشان می‌دهد. سفارش قبلاً ذخیره شده و سبد خالی است.
+// موفق: فقط پیام موفقیت، بدون کد رهگیری.
 // ناموفق: سبد دست نخورده می‌ماند و کاربر می‌تواند دوباره پرداخت کند.
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Check, X } from "lucide-react";
-import { readDraft, readReceipt } from "@/lib/checkout";
+import { readDraft } from "@/lib/checkout";
 import { faDigits } from "@/lib/format";
 
 type PaymentResultProps = {
@@ -19,28 +18,17 @@ const buttonClass =
   "inline-flex h-12 min-w-44 items-center justify-center rounded-lg px-5 text-sm";
 
 export default function PaymentResult({ status }: PaymentResultProps) {
-  const router = useRouter();
   const [tracking, setTracking] = useState("");
   const [ready, setReady] = useState(false);
   const success = status === "success";
 
   useEffect(() => {
-    if (success) {
-      const receipt = readReceipt();
-      // اگر کسی مستقیم این آدرس را باز کند و پرداختی نبوده، برگردد سبد
-      if (!receipt) {
-        router.replace("/cart");
-        return;
-      }
-      setTracking(receipt.trackingCode);
-      setReady(true);
-      return;
+    if (!success) {
+      const draft = readDraft();
+      if (draft) setTracking(draft.trackingCode);
     }
-
-    const draft = readDraft();
-    if (draft) setTracking(draft.trackingCode);
     setReady(true);
-  }, [router, success]);
+  }, [success]);
 
   if (!ready) {
     return <p className="px-6 py-24 text-center text-sm text-neutral-09">در حال بارگذاری...</p>;
@@ -57,8 +45,7 @@ export default function PaymentResult({ status }: PaymentResultProps) {
 
   if (success) {
     title = "پرداخت شما با موفقیت انجام شد!";
-    description =
-      "سفارش شما ثبت شد و سبد خرید خالی شد. جزئیات را از بخش سفارش‌های حساب کاربری ببینید.";
+    description = "از خرید شما سپاسگزاریم.";
     firstHref = "/account/orders";
     firstLabel = "پیگیری سفارش";
     secondHref = "/";
@@ -85,7 +72,7 @@ export default function PaymentResult({ status }: PaymentResultProps) {
       <h1 className="mt-8 text-2xl font-semibold text-black">{title}</h1>
       <p className="mt-4 max-w-md text-sm leading-7 text-neutral-09">{description}</p>
 
-      {tracking ? (
+      {!success && tracking ? (
         <p className="mt-6 text-sm text-neutral-11">
           کد رهگیری سفارش:{" "}
           <span className="font-medium text-black">{faDigits(tracking)}</span>

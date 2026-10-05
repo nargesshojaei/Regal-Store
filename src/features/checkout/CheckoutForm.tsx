@@ -6,8 +6,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Calendar } from "lucide-react";
 import CheckoutSteps from "@/features/checkout/CheckoutSteps";
+import JalaliDateField from "@/ui/JalaliDateField";
 import { readProfile } from "@/lib/account";
 import { useCart, type CartProduct } from "@/lib/cart";
 import {
@@ -29,10 +29,24 @@ type FieldErrors = {
   firstName?: string;
   lastName?: string;
   address?: string;
-  job?: string;
+  phone?: string;
   deliveryDate?: string;
   postalCode?: string;
 };
+
+const FIELD_ORDER: Array<keyof FieldErrors> = [
+  "firstName",
+  "lastName",
+  "phone",
+  "postalCode",
+  "address",
+  "deliveryDate",
+];
+
+function isMobile(value: string) {
+  const digits = postalDigits(value);
+  return digits.length === 11 && digits.startsWith("09");
+}
 
 function validate(form: BuyerInfo) {
   const errors: FieldErrors = {};
@@ -41,7 +55,7 @@ function validate(form: BuyerInfo) {
   if (!form.firstName.trim()) errors.firstName = "نام را وارد کنید.";
   if (!form.lastName.trim()) errors.lastName = "نام خانوادگی را وارد کنید.";
   if (form.address.trim().length < 10) errors.address = "آدرس را کامل بنویسید.";
-  if (!form.job.trim()) errors.job = "شغل را وارد کنید.";
+  if (!isMobile(form.phone)) errors.phone = "شماره تلفن را با ۱۱ رقم و شروع ۰۹ وارد کنید.";
 
   if (!form.deliveryDate) {
     errors.deliveryDate = "تاریخ تحویل را از تقویم انتخاب کنید.";
@@ -80,6 +94,7 @@ export default function CheckoutForm() {
     const nextForm = emptyBuyer();
     nextForm.firstName = profile.firstName;
     nextForm.lastName = profile.lastName;
+    nextForm.phone = profile.phone;
     setForm(nextForm);
   }, []);
 
@@ -102,7 +117,16 @@ export default function CheckoutForm() {
 
     const nextErrors = validate(form);
     setErrors(nextErrors);
-    if (hasAnyError(nextErrors)) return;
+    if (hasAnyError(nextErrors)) {
+      const firstKey = FIELD_ORDER.find((key) => nextErrors[key]);
+      window.setTimeout(() => {
+        const node = document.getElementById(`checkout-${firstKey}`);
+        node?.scrollIntoView({ behavior: "smooth", block: "center" });
+        const focusable = node?.querySelector("input, textarea, button");
+        if (focusable instanceof HTMLElement) focusable.focus();
+      }, 0);
+      return;
+    }
 
     const previous = readDraft();
     let trackingCode = createTrackingCode();
@@ -114,7 +138,7 @@ export default function CheckoutForm() {
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         address: form.address.trim(),
-        job: form.job.trim(),
+        phone: postalDigits(form.phone),
         deliveryDate: form.deliveryDate,
         notes: form.notes.trim(),
         postalCode: postalDigits(form.postalCode),
@@ -159,7 +183,7 @@ export default function CheckoutForm() {
           <section className="rounded-2xl border border-neutral-03 p-5 md:p-6">
             <h1 className="text-base font-medium text-black">اطلاعات خریدار</h1>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <Field label="نام" error={errors.firstName}>
+              <Field id="checkout-firstName" label="نام" error={errors.firstName}>
                 <input
                   value={form.firstName}
                   onChange={(event) => update("firstName", event.target.value)}
@@ -167,7 +191,7 @@ export default function CheckoutForm() {
                   autoComplete="given-name"
                 />
               </Field>
-              <Field label="نام خانوادگی" error={errors.lastName}>
+              <Field id="checkout-lastName" label="نام خانوادگی" error={errors.lastName}>
                 <input
                   value={form.lastName}
                   onChange={(event) => update("lastName", event.target.value)}
@@ -175,15 +199,18 @@ export default function CheckoutForm() {
                   autoComplete="family-name"
                 />
               </Field>
-              <Field label="شغل" error={errors.job}>
+              <Field id="checkout-phone" label="شماره تلفن" error={errors.phone}>
                 <input
-                  value={form.job}
-                  onChange={(event) => update("job", event.target.value)}
-                  placeholder="مثلاً طراح لباس"
-                  className={fieldClass}
+                  value={form.phone}
+                  onChange={(event) => update("phone", event.target.value)}
+                  inputMode="tel"
+                  dir="ltr"
+                  placeholder="۰۹۱۲xxxxxxx"
+                  className={`${fieldClass} text-left`}
+                  autoComplete="tel"
                 />
               </Field>
-              <Field label="کد پستی" error={errors.postalCode}>
+              <Field id="checkout-postalCode" label="کد پستی" error={errors.postalCode}>
                 <input
                   value={form.postalCode}
                   onChange={(event) => update("postalCode", event.target.value)}
@@ -196,7 +223,7 @@ export default function CheckoutForm() {
               </Field>
             </div>
             <div className="mt-4">
-              <Field label="آدرس" error={errors.address}>
+              <Field id="checkout-address" label="آدرس" error={errors.address}>
                 <textarea
                   value={form.address}
                   onChange={(event) => update("address", event.target.value)}
@@ -213,17 +240,12 @@ export default function CheckoutForm() {
             <h2 className="text-base font-medium text-black">تاریخ تحویل</h2>
             <p className="mt-1 text-xs text-neutral-08">روز موردنظر را از تقویم انتخاب کنید.</p>
             <div className="mt-4">
-              <Field label="انتخاب از تقویم" error={errors.deliveryDate}>
-                <div className="flex items-center gap-3 rounded-lg border border-neutral-03 px-3">
-                  <Calendar className="size-4 shrink-0 text-primary" strokeWidth={1.75} />
-                  <input
-                    type="date"
-                    value={form.deliveryDate}
-                    min={todayISO()}
-                    onChange={(event) => update("deliveryDate", event.target.value)}
-                    className="h-11 w-full bg-transparent text-sm outline-none"
-                  />
-                </div>
+              <Field id="checkout-deliveryDate" label="انتخاب از تقویم" error={errors.deliveryDate}>
+                <JalaliDateField
+                  value={form.deliveryDate}
+                  min={todayISO()}
+                  onChange={(value) => update("deliveryDate", value)}
+                />
               </Field>
               {form.deliveryDate ? (
                 <p className="mt-2 text-sm text-primary">{formatLongDate(form.deliveryDate)}</p>
@@ -268,7 +290,7 @@ function CartSide({
       <h2 className="text-base font-medium text-black">سبد خرید</h2>
       <ul className="mt-4 max-h-64 space-y-3 overflow-auto">
         {items.map((item) => (
-          <li key={item.id} className="flex items-center gap-3">
+          <li key={item.lineId} className="flex items-center gap-3">
             {item.image ? (
               <img
                 src={item.image}
@@ -280,6 +302,13 @@ function CartSide({
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm text-black">{item.name}</p>
+              {item.color || item.size ? (
+                <p className="truncate text-xs text-neutral-08">
+                  {item.color ? `رنگ: ${item.color}` : ""}
+                  {item.color && item.size ? "، " : ""}
+                  {item.size ? `سایز: ${item.size}` : ""}
+                </p>
+              ) : null}
               <p className="text-xs text-neutral-08">{faDigits(item.count)} عدد</p>
             </div>
             <p className="text-xs text-neutral-11">
@@ -309,20 +338,24 @@ function CartSide({
 }
 
 function Field({
+  id,
   label,
   error,
   children,
 }: {
+  id?: string;
   label: string;
   error?: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm text-neutral-11">{label}</span>
-      {children}
-      {error ? <span className="mt-1 block text-xs text-red-500">{error}</span> : null}
-    </label>
+    <div id={id} className="scroll-mt-28">
+      <label className="block">
+        <span className="mb-2 block text-sm text-neutral-11">{label}</span>
+        {children}
+        {error ? <span className="mt-1 block text-xs text-red-500">{error}</span> : null}
+      </label>
+    </div>
   );
 }
 

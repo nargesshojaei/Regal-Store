@@ -4,6 +4,7 @@
 // حالت دیدن و حالت ویرایش توی همین کامپوننت هست
 // ذخیره = localStorage
 
+//	فقط سفارش ثبت‌شده را نشان می‌دهد. وضعیت «در انتظار ارسال» یا «تحویل داده شده» است و با ادمین یکی است.
 import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";

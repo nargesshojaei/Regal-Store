@@ -1,36 +1,13 @@
 import { getCategories, getSubs, type Category, type Sub } from "./categories";
-import { getProducts, productPhoto, type Product } from "./products";
-import { fileUrl } from "./client";
+import { getProducts, productPhoto, productPhotoUrls, type Product } from "./products";
 import type { Product as CardProduct, ProductColor } from "@/types/product";
 import type { Category as CardCategory } from "@/types";
+import { colorHex, nameList } from "@/lib/variants";
 
-const COLOR_HEX: Record<string, string> = {
-  مشکی: "#111111",
-  سفید: "#f4f1ec",
-  کرم: "#e6d7c3",
-  بژ: "#d4c4a8",
-  صورتی: "#e8b4c4",
-  رزگلد: "#c9a27a",
-  سرمه‌ای: "#1e2a4a",
-  "آبی دریایی": "#6b8cae",
-  آبی: "#6b8cae",
-  زرشکی: "#7a1f2b",
-  قرمز: "#b42318",
-  سبز: "#6b7c4f",
-  زیتونی: "#8a8f6a",
-  شتری: "#b08968",
-  طوسی: "#8a8a90",
-  لیمویی: "#e4d48a",
-};
-
-export function colorHex(name: string) {
-  if (COLOR_HEX[name]) return COLOR_HEX[name];
-  const key = Object.keys(COLOR_HEX).find((item) => name.includes(item));
-  return key ? COLOR_HEX[key] : "#b19276";
-}
+export { colorHex };
 
 function colorsOf(product: Product): ProductColor[] {
-  return (product.color || []).map((name) => ({
+  return nameList(product.color).map((name) => ({
     name,
     hex: colorHex(name),
   }));
@@ -52,6 +29,7 @@ export function toCardProduct(product: Product): CardProduct {
     image: productPhoto(product) || "",
     description: product.description || "",
     colors: colorsOf(product),
+    sizes: nameList(product.size),
   };
 }
 
@@ -66,10 +44,10 @@ export type ShopItem = CardProduct & {
 export function toShopItem(product: Product): ShopItem {
   return {
     ...toCardProduct(product),
-    sizes: product.size || [],
+    sizes: nameList(product.size),
     quantity: product.quantity,
     createdAt: product.createdAt || 0,
-    colorNames: product.color || [],
+    colorNames: nameList(product.color),
     subcategoryId: product.subcategory,
   };
 }
@@ -103,16 +81,7 @@ function withPhoto(products: Product[]) {
 }
 
 export function productPhotos(product: Product) {
-  const urls: string[] = [];
-  const main = productPhoto(product);
-  if (main) urls.push(main);
-
-  for (const item of product.image || []) {
-    const url = fileUrl(item);
-    if (url && !urls.includes(url)) urls.push(url);
-  }
-
-  return urls;
+  return productPhotoUrls(product);
 }
 
 // داده کامل صفحه جزئیات: عکس‌ها + اسم دسته و زیردسته
