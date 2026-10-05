@@ -3,8 +3,9 @@ export type Category = {
   name: string;
   href: string;
   image: string;
+  subtitle?: string;
 };
-
+//نوع دسته، مقاله و نظر را تعریف می‌کند و نوع کالا، سفارش و ادمین را دوباره صادر می‌کند.
 export type BlogPost = {
   id: string;
   title: string;
@@ -12,6 +13,7 @@ export type BlogPost = {
   date: string;
   image: string;
   href: string;
+  author?: string;
 };
  
 export type Testimonial = {

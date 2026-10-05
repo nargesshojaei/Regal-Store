@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>فایل‌های برنچ Level3</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 32px 24px 64px;
+      background: #fafafa;
+      color: #23242e;
+      font-family: Tahoma, "Segoe UI", sans-serif;
+      line-height: 1.7;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+    h2 {
+      margin: 36px 0 10px;
+      font-size: 18px;
+    }
+    p {
+      margin: 0 0 8px;
+      color: #6d6d74;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid #f2f2f3;
+      margin-bottom: 8px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f2f2f3;
+      text-align: right;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      background: #efe9e4;
+      color: #231d18;
+      font-weight: 700;
+    }
+    tr:hover td {
+      background: #fafafa;
+    }
+    td:first-child, th:first-child {
+      width: 48px;
+      text-align: center;
+      color: #6d6d74;
+    }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      direction: ltr;
+      unicode-bidi: embed;
+      color: #231d18;
+    }
+  </style>
+</head>
+<body>
+  <h1>فایل‌های برنچ Level3</h1>
+  <p>هر فیچر جدول جدا دارد.</p>
+
+  <h2>تنظیمات پروژه</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>next.config.ts</code></td><td>ریشه پروژه را برای Turbopack و ردیابی فایل مشخص می‌کند تا مسیرهای ادمین به‌خاطر lockfile پوشه بالاتر ۴۰۴ نشوند.</td></tr>
+      <tr><td>2</td><td><code>src/app/globals.css</code></td><td>رنگ‌های برند، تم shadcn و کلاس مخفی‌کردن اسکرول افقی را تعریف می‌کند.</td></tr>
+      <tr><td>3</td><td><code>src/app/icon.svg</code></td><td>آیکون تب مرورگر است؛ لوگوی رگال.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>قاب فروشگاه و صفحه اصلی</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/app/(storefront)/layout.tsx</code></td><td>هدر، بدنه و فوتر را دور همه صفحات فروشگاه می‌گذارد.</td></tr>
+      <tr><td>2</td><td><code>src/app/(storefront)/page.tsx</code></td><td>صفحه خانه است. کاتالوگ را از سرور می‌گیرد و بخش‌ها را پشت‌سرهم نشان می‌دهد. بالای نظرات، چهار کالای پیراهن کوتاه و چهار کالای شومیز را مثل ردیف تخفیف‌دار نشان می‌دهد.</td></tr>
+      <tr><td>3</td><td><code>src/data/home.ts</code></td><td>متن چیپ‌های هیرو و دو نکته «کشف پوششی با رگال» را نگه می‌دارد.</td></tr>
+      <tr><td>4</td><td><code>src/sections/Hero.tsx</code></td><td>بنر بالای خانه است: لوک‌ها، کالای ویژه و چیپ‌ها.</td></tr>
+      <tr><td>5</td><td><code>src/sections/Categories.tsx</code></td><td>شبکه دسته‌هاست؛ بعضی کارت‌ها در دسکتاپ دو یا سه ردیف را می‌گیرند.</td></tr>
+      <tr><td>6</td><td><code>src/sections/BodyShape.tsx</code></td><td>ردیف عکس «دوخت بر اساس شکل بدن» است.</td></tr>
+      <tr><td>7</td><td><code>src/sections/DiscountProducts.tsx</code></td><td>چهار کالای تخفیف‌دار صفحه خانه را نشان می‌دهد.</td></tr>
+      <tr><td>8</td><td><code>src/sections/BrandFeatures.tsx</code></td><td>معرفی برند را کنار یک عکس و دو نکته می‌گذارد.</td></tr>
+      <tr><td>9</td><td><code>src/sections/FeaturedCategories.tsx</code></td><td>بالای نظرات، چهار کالای پیراهن کوتاه و چهار کالای شومیز را مثل ردیف تخفیف‌دار نشان می‌دهد.</td></tr>
+      <tr><td>10</td><td><code>src/sections/Testimonials.tsx</code></td><td>سه نظر مشتری را در یک ردیف می‌چیند.</td></tr>
+      <tr><td>11</td><td><code>src/sections/Blog.tsx</code></td><td>سه کارت مقاله پایین صفحه خانه را می‌چیند.</td></tr>
+      <tr><td>12</td><td><code>src/features/category/CategoryCard.tsx</code></td><td>کارت یک دسته است: عکس، نام و لینک به فروشگاه.</td></tr>
+      <tr><td>13</td><td><code>src/features/blog/BlogCard.tsx</code></td><td>کارت مقاله است: عکس، عنوان، خلاصه، تاریخ و نویسنده.</td></tr>
+      <tr><td>14</td><td><code>src/features/testimonial/TestimonialCard.tsx</code></td><td>کارت نظر است: آواتار، نام، امتیاز و متن.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>درباره ما</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/app/(storefront)/about/page.tsx</code></td><td>صفحه درباره ما را از چهار بخش زیر می‌سازد.</td></tr>
+      <tr><td>2</td><td><code>src/data/about.ts</code></td><td>متن داستان، مزیت‌ها، سال‌های مسیر و سوالات متداول را نگه می‌دارد.</td></tr>
+      <tr><td>3</td><td><code>src/features/about/AboutIntro.tsx</code></td><td>عنوان، داستان، لیست تیک‌دار و سه عکس را نشان می‌دهد.</td></tr>
+      <tr><td>4</td><td><code>src/features/about/AboutBenefits.tsx</code></td><td>سه کارت ضمانت اصالت، ارسال و پرداخت امن را نشان می‌دهد.</td></tr>
+      <tr><td>5</td><td><code>src/features/about/AboutTimeline.tsx</code></td><td>تایم‌لاین سال‌ها را یکی‌درمیان چپ و راست می‌چیند.</td></tr>
+      <tr><td>6</td><td><code>src/features/about/AboutFaq.tsx</code></td><td>آکاردئون سوالات را نشان می‌دهد؛ سوال زمان تحویل از اول باز است.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>حساب کاربری</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/lib/account.ts</code></td><td>خواندن و ذخیره پروفایل، آدرس، سفارش و وضعیت ورود را در localStorage انجام می‌دهد و هوک‌ها را می‌دهد.</td></tr>
+      <tr><td>2</td><td><code>src/app/(storefront)/account/layout.tsx</code></td><td>قاب مشترک همه صفحات حساب است.</td></tr>
+      <tr><td>3</td><td><code>src/features/account/AccountShell.tsx</code></td><td>اگر کاربر خارج باشد فرم ورود را نشان می‌دهد؛ وگرنه منو و محتوای صفحه را کنار هم می‌گذارد.</td></tr>
+      <tr><td>4</td><td><code>src/features/account/LoginCard.tsx</code></td><td>ورود با شماره موبایل است و همان شماره را در پروفایل ذخیره می‌کند.</td></tr>
+      <tr><td>5</td><td><code>src/features/account/AccountSidebar.tsx</code></td><td>آواتار، نام، شماره و لینک پروفایل، سفارش، علاقه‌مندی و آدرس است. خروج، فلگ ورود را خاموش می‌کند.</td></tr>
+      <tr><td>6</td><td><code>src/app/(storefront)/account/page.tsx</code></td><td>صفحه پروفایل است.</td></tr>
+      <tr><td>7</td><td><code>src/features/account/ProfilePanel.tsx</code></td><td>نمایش و ویرایش نام، نام‌خانوادگی، تلفن و ایمیل است.</td></tr>
+      <tr><td>8</td><td><code>src/app/(storefront)/account/orders/page.tsx</code></td><td>صفحه پیگیری سفارش است.</td></tr>
+      <tr><td>9</td><td><code>src/features/account/OrdersPanel.tsx</code></td><td>لیست سفارش نمونه را با فیلتر وضعیت و جزئیات مبلغ نشان می‌دهد.</td></tr>
+      <tr><td>10</td><td><code>src/app/(storefront)/account/favorites/page.tsx</code></td><td>صفحه علاقه‌مندی‌های حساب است.</td></tr>
+      <tr><td>11</td><td><code>src/features/account/FavoritesPanel.tsx</code></td><td>همان لیست قلب فروشگاه را نشان می‌دهد و از آنجا به سبد اضافه می‌کند.</td></tr>
+      <tr><td>12</td><td><code>src/app/(storefront)/account/addresses/page.tsx</code></td><td>صفحه آدرس‌هاست.</td></tr>
+      <tr><td>13</td><td><code>src/features/account/AddressesPanel.tsx</code></td><td>افزودن در دو مرحله (نقطه روی نقشه، بعد فرم)، ویرایش، حذف و آدرس پیش‌فرض را انجام می‌دهد.</td></tr>
+      <tr><td>14</td><td><code>src/features/account/EmptyState.tsx</code></td><td>حالت خالی آدرس، سفارش و علاقه‌مندی است: تصویر، متن و دکمه.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>فروشگاه، تخفیف، علاقه‌مندی و جستجو</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/app/(storefront)/shop/page.tsx</code></td><td>کالا و دسته‌ها را از سرور می‌گیرد و عنوان صفحه را از دسته یا زیردسته می‌سازد.</td></tr>
+      <tr><td>2</td><td><code>src/features/product/ShopList.tsx</code></td><td>جستجو، فیلتر، مرتب‌سازی و صفحه‌بندی ۹تایی فروشگاه را انجام می‌دهد.</td></tr>
+      <tr><td>3</td><td><code>src/features/product/ProductFilters.tsx</code></td><td>نوع فیلترها و کنترل‌های رنگ، سایز، قیمت و موجودی را تعریف می‌کند.</td></tr>
+      <tr><td>4</td><td><code>src/features/product/ProductGrid.tsx</code></td><td>کالاها را در شبکه دو ستونه موبایل و چهار ستونه دسکتاپ می‌چیند.</td></tr>
+      <tr><td>5</td><td><code>src/app/(storefront)/shop/discount/page.tsx</code></td><td>صفحه کامل کالاهای تخفیف‌دار است.</td></tr>
+      <tr><td>6</td><td><code>src/app/(storefront)/shop/wishlist/page.tsx</code></td><td>کالاهایی را نشان می‌دهد که آیدی‌شان در لیست قلب است.</td></tr>
+      <tr><td>7</td><td><code>src/app/(storefront)/search/page.tsx</code></td><td>صفحه جستجوی هدر است.</td></tr>
+      <tr><td>8</td><td><code>src/features/search/SearchList.tsx</code></td><td>کالاها را از سرور می‌گیرد و آن‌هایی را نشان می‌دهد که اسمشان شامل متن تایپ‌شده است.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>داده و نوع‌ها</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/data/images.ts</code></td><td>لینک عکس Unsplash را با عرض دلخواه می‌سازد.</td></tr>
+      <tr><td>2</td><td><code>src/data/Categories.ts</code></td><td>دسته‌های نمایشی صفحه خانه را با عکس و لینک نگه می‌دارد.</td></tr>
+      <tr><td>3</td><td><code>src/data/Products.ts</code></td><td>کالاهای نمونه محلی است؛ علاقه‌مندی و سفارش حساب از همین‌ها استفاده می‌کنند.</td></tr>
+      <tr><td>4</td><td><code>src/data/Blog.ts</code></td><td>سه مقاله نمونه صفحه خانه است.</td></tr>
+      <tr><td>5</td><td><code>src/data/Testimonials.ts</code></td><td>سه نظر نمونه مشتریان است.</td></tr>
+      <tr><td>6</td><td><code>src/types/index.ts</code></td><td>نوع دسته، مقاله و نظر را تعریف می‌کند و نوع کالا، سفارش و ادمین را دوباره صادر می‌کند.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>قطعات مشترک رابط</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/components/ui/accordion.tsx</code></td><td>باز و بسته شدن سوالات.</td></tr>
+      <tr><td>2</td><td><code>src/components/ui/avatar.tsx</code></td><td>دایره آواتار کنار نام کاربر.</td></tr>
+      <tr><td>3</td><td><code>src/components/ui/badge.tsx</code></td><td>برچسب وضعیت، مثل آدرس پیش‌فرض.</td></tr>
+      <tr><td>4</td><td><code>src/components/ui/button.tsx</code></td><td>دکمه.</td></tr>
+      <tr><td>5</td><td><code>src/components/ui/card.tsx</code></td><td>کارت.</td></tr>
+      <tr><td>6</td><td><code>src/components/ui/checkbox.tsx</code></td><td>تیک آدرس پیش‌فرض.</td></tr>
+      <tr><td>7</td><td><code>src/components/ui/dialog.tsx</code></td><td>پنجره افزودن و ویرایش آدرس.</td></tr>
+      <tr><td>8</td><td><code>src/components/ui/dropdown-menu.tsx</code></td><td>منوی کشویی.</td></tr>
+      <tr><td>9</td><td><code>src/components/ui/input.tsx</code></td><td>فیلد متن.</td></tr>
+      <tr><td>10</td><td><code>src/components/ui/label.tsx</code></td><td>برچسب فیلد.</td></tr>
+      <tr><td>11</td><td><code>src/components/ui/select.tsx</code></td><td>انتخاب وضعیت سفارش.</td></tr>
+      <tr><td>12</td><td><code>src/components/ui/separator.tsx</code></td><td>خط جداکننده.</td></tr>
+      <tr><td>13</td><td><code>src/ui/HScroll.tsx</code></td><td>اسکرول افقی با فلش، با جهت راست‌به‌چپ.</td></tr>
+      <tr><td>14</td><td><code>src/ui/ProductPhoto.tsx</code></td><td>عکس کالا را نشان می‌دهد و اگر لینک خراب باشد عکس بعدی را امتحان می‌کند.</td></tr>
+      <tr><td>15</td><td><code>src/ui/Badge.tsx</code></td><td>دایره کوچک روی عکس کالا، مثلاً درصد تخفیف.</td></tr>
+      <tr><td>16</td><td><code>src/ui/ColorSwatch.tsx</code></td><td>دایره‌های رنگ کالا.</td></tr>
+      <tr><td>17</td><td><code>src/ui/Pagination.tsx</code></td><td>دکمه‌های صفحه قبل، شماره و بعد.</td></tr>
+      <tr><td>18</td><td><code>src/ui/SectionHeading.tsx</code></td><td>عنوان بخش‌ها با نقطه کنارش.</td></tr>
+      <tr><td>19</td><td><code>src/ui/StarRating.tsx</code></td><td>پنج ستاره امتیاز نظر.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>ادمین</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/app/admin/login/page.tsx</code></td><td>صفحه ورود ادمین است. اگر سشن باشد می‌رود داشبورد. جایگزین مسیر قدیمی src/app/(admin)/admin/login/page.tsx.</td></tr>
+      <tr><td>2</td><td><code>src/app/admin/(dashboard)/layout.tsx</code></td><td>بدون سشن به لاگین برمی‌گرداند و هدر، منو و فوتر ادمین را می‌چیند.</td></tr>
+      <tr><td>3</td><td><code>src/app/admin/(dashboard)/page.tsx</code></td><td>خوش‌آمد داشبورد است.</td></tr>
+      <tr><td>4</td><td><code>src/app/admin/(dashboard)/products/page.tsx</code></td><td>جدول کالاها را باز می‌کند.</td></tr>
+      <tr><td>5</td><td><code>src/app/admin/(dashboard)/orders/page.tsx</code></td><td>جدول سفارش‌ها را باز می‌کند.</td></tr>
+      <tr><td>6</td><td><code>src/app/admin/(dashboard)/inventory/page.tsx</code></td><td>جدول موجودی و قیمت را باز می‌کند.</td></tr>
+      <tr><td>7</td><td><code>src/app/admin/(dashboard)/blog/page.tsx</code></td><td>صفحه وبلاگ ادمین؛ فعلاً خالی است و null برمی‌گرداند.</td></tr>
+      <tr><td>8</td><td><code>src/app/admin/(dashboard)/testimonials/page.tsx</code></td><td>صفحه نظرات ادمین؛ فعلاً خالی است و null برمی‌گرداند.</td></tr>
+      <tr><td>9</td><td><code>src/features/admin/product/ProductTable.tsx</code></td><td>لیست کالا با فیلتر دسته، افزودن، ویرایش، حذف و صفحه‌بندی است.</td></tr>
+      <tr><td>10</td><td><code>src/features/admin/product/ProductFormModal.tsx</code></td><td>فرم افزودن و ویرایش کالاست؛ عکس را آپلود می‌کند و قیمت و موجودی را دست نمی‌زند.</td></tr>
+      <tr><td>11</td><td><code>src/features/admin/order/OrderTable.tsx</code></td><td>سفارش‌ها را با فیلتر تحویل‌شده و نشده و مرتب‌سازی تاریخ نشان می‌دهد.</td></tr>
+      <tr><td>12</td><td><code>src/features/admin/order/OrderModal.tsx</code></td><td>جزئیات یک سفارش است و می‌تواند تحویل را تمام‌شده ثبت کند.</td></tr>
+      <tr><td>13</td><td><code>src/features/admin/inventory/InventoryTable.tsx</code></td><td>قیمت و موجودی را سلول‌به‌سلول ویرایش می‌کند و با ذخیره، هر کالا را جدا به سرور می‌فرستد.</td></tr>
+      <tr><td>14</td><td><code>src/features/admin/inventory/EditableCell.tsx</code></td><td>یک سلول جدول است که با کلیک به فیلد متن تبدیل می‌شود.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>ارتباط با سرور</h2>
+  <table>
+    <thead>
+      <tr><th>ردیف</th><th>فایل</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>src/lib/api/client.ts</code></td><td>آدرس API، ساخت لینک عکس و fetch مشترک با هدر توکن است. برای آپلود، هدر JSON نمی‌گذارد تا فایل خراب نشود.</td></tr>
+      <tr><td>2</td><td><code>src/lib/api/auth.ts</code></td><td>لاگین ادمین است و accessToken را از سرور می‌گیرد. اگر سرور در دسترس نباشد، ورود admin / admin را قبول می‌کند.</td></tr>
+      <tr><td>3</td><td><code>src/lib/api/home.ts</code></td><td>داده صفحه خانه را از سرور می‌سازد. برای بخش بالای نظرات، چهار کالای دسته پیراهن کوتاه و چهار کالای شومیز را جدا می‌گیرد.</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>
