@@ -23,7 +23,7 @@ export type BuyerInfo = {
   firstName: string;
   lastName: string;
   address: string;
-  job: string;
+  phone: string;
   deliveryDate: string;
   notes: string;
   postalCode: string;
@@ -49,7 +49,7 @@ export function emptyBuyer(): BuyerInfo {
     firstName: "",
     lastName: "",
     address: "",
-    job: "",
+    phone: "",
     deliveryDate: "",
     notes: "",
     postalCode: "",
@@ -70,7 +70,22 @@ function readJson<T>(storage: Storage, key: string): T | null {
 
 export function readDraft(): CheckoutDraft | null {
   if (typeof window === "undefined") return null;
-  return readJson<CheckoutDraft>(sessionStorage, DRAFT_KEY);
+  const raw = readJson<CheckoutDraft>(sessionStorage, DRAFT_KEY);
+  if (!raw?.buyer || !raw.trackingCode) return null;
+
+  const buyer = raw.buyer;
+  return {
+    trackingCode: raw.trackingCode,
+    buyer: {
+      firstName: buyer.firstName || "",
+      lastName: buyer.lastName || "",
+      address: buyer.address || "",
+      phone: buyer.phone || "",
+      deliveryDate: buyer.deliveryDate || "",
+      notes: buyer.notes || "",
+      postalCode: buyer.postalCode || "",
+    },
+  };
 }
 
 export function saveDraft(draft: CheckoutDraft) {
@@ -130,12 +145,15 @@ export function postalDigits(value: string) {
 
 function toOrderItem(item: CartProduct) {
   return {
-    id: item.id,
+    id: item.lineId || item.id,
     name: item.name,
     image: item.image,
     count: item.count,
     price: item.price,
     discount: 0,
+    color: item.color,
+    colorHex: item.colorHex,
+    size: item.size,
   };
 }
 
@@ -159,8 +177,7 @@ export function commitSuccessfulPayment(): PaymentReceipt | null {
     address: buyer.address.trim(),
     shipping: 0,
     buyerName: fullName,
-    phone: profile.phone,
-    job: buyer.job.trim(),
+    phone: buyer.phone.trim() || profile.phone,
     deliveryDate: buyer.deliveryDate,
     notes: buyer.notes.trim(),
     postalCode: buyer.postalCode,

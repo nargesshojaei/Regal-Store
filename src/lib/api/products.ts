@@ -1,4 +1,4 @@
-import { api, apiList, fileUrl } from "./client";
+import { api, apiList, cleanFileId, fileUrl } from "./client";
 // لیست/افزودن/ویرایش/حذف کالا
 
 {/*کار با کالا.
@@ -30,15 +30,52 @@ export type Product = {
   favourite?: boolean;
 };
 
-// آدرس عکس کالا روی سرور
-export function productPhoto(product: Product) {
-  let id = product.thumbnail;
+// thumbnail و image را به یک لیست شناسه تبدیل می‌کند.
+// اگر سرور عکس‌ها را رشته، آرایه یا آبجکت برگرداند، عکس دوم هم از قلم نمی‌افتد.
+export function imageIds(product: { image?: unknown; thumbnail?: unknown }) {
+  const ids: string[] = [];
 
-  if (!id && product.image && product.image[0]) {
-    id = product.image[0];
+  function add(value: unknown) {
+    if (Array.isArray(value)) {
+      value.forEach(add);
+      return;
+    }
+
+    if (typeof value === "string") {
+      const text = value.trim();
+      if (text.startsWith("[")) {
+        try {
+          add(JSON.parse(text));
+          return;
+        } catch {
+          // متن معمولی است
+        }
+      }
+      if (text.includes(",") && !text.startsWith("http") && !text.startsWith("blob:")) {
+        text.split(",").forEach(add);
+        return;
+      }
+    }
+
+    const id = cleanFileId(value);
+    if (!id || ids.includes(id)) return;
+    ids.push(id);
   }
 
-  return fileUrl(id);
+  add(product.thumbnail);
+  add(product.image);
+  return ids;
+}
+
+// آدرس عکس کالا روی سرور
+export function productPhoto(product: Product) {
+  return fileUrl(imageIds(product)[0]);
+}
+
+export function productPhotoUrls(product: Product) {
+  return imageIds(product)
+    .map((id) => fileUrl(id))
+    .filter((url): url is string => Boolean(url));
 }
 
 export async function getProducts(

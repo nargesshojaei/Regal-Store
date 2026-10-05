@@ -1,20 +1,74 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cartLineId } from "@/lib/variants";
 
-// سبد خرید ساده در localStorage
-// هر قلم: آیدی، نام، قیمت واحد، عکس، تعداد
+// سبد خرید در localStorage.
+// هر قلم با کالا + رنگ + سایز جدا می‌شود.
+// تعداد همه رنگ‌ها و سایزهای یک کالا از موجودی همان کالا بیشتر نمی‌شود.
 
 export type CartProduct = {
   id: string;
+  lineId: string;
   name: string;
   price: number;
   image: string;
   count: number;
+  color: string;
+  colorHex: string;
+  size: string;
+  stock: number;
+};
+
+export type AddResult = {
+  ok: boolean;
+  message: string;
 };
 
 const KEY = "regal-cart";
 const EVENT = "regal-cart-change";
+
+function normalizeItem(raw: Partial<CartProduct>): CartProduct | null {
+  if (!raw.id || !raw.name) return null;
+
+  const color = raw.color || "";
+  const size = raw.size || "";
+  const count = Number(raw.count) || 1;
+
+  return {
+    id: String(raw.id),
+    lineId: raw.lineId || cartLineId(String(raw.id), color, size),
+    name: raw.name,
+    price: Number(raw.price) || 0,
+    image: raw.image || "",
+    count,
+    color,
+    colorHex: raw.colorHex || "",
+    size,
+    stock: Number(raw.stock) || 0,
+  };
+}
+
+// موجودی ثبت‌نشده (سبدهای قدیمی) همان تعداد فعلی حساب می‌شود
+function stockOf(item: CartProduct) {
+  if (item.stock > 0) return item.stock;
+  return item.count;
+}
+
+function clampToStock(items: CartProduct[]) {
+  const next: CartProduct[] = [];
+
+  for (const item of items) {
+    const used = next
+      .filter((row) => row.id === item.id)
+      .reduce((sum, row) => sum + row.count, 0);
+    const room = stockOf(item) - used;
+    if (room < 1) continue;
+    next.push({ ...item, count: Math.min(item.count, room) });
+  }
+
+  return next;
+}
 
 function readItems(): CartProduct[] {
   if (typeof window === "undefined") return [];
@@ -22,7 +76,14 @@ function readItems(): CartProduct[] {
   try {
     const raw = window.localStorage.getItem(KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+
+    const items: CartProduct[] = [];
+    for (const row of parsed) {
+      const item = normalizeItem(row);
+      if (item) items.push(item);
+    }
+    return clampToStock(items);
   } catch {
     return [];
   }
@@ -33,26 +94,73 @@ function writeItems(items: CartProduct[]) {
   window.dispatchEvent(new Event(EVENT));
 }
 
-// درگاه و ثبت سفارش بدون هوک هم بتوانند سبد را بخوانند
 export function readCart(): CartProduct[] {
   return readItems();
 }
 
-// جمع سبد = قیمت هر کالا ضربدر تعدادش
 export function cartTotal(items: CartProduct[]) {
   return items.reduce((sum, item) => sum + item.price * item.count, 0);
 }
 
-// فقط بعد از پرداخت موفق صدا زده می‌شود
+// سقف تعداد همین قلم، با کم کردن رنگ و سایزهای دیگر همان کالا
+export function lineStockLimit(items: CartProduct[], item: CartProduct) {
+  const others = items
+    .filter((row) => row.id === item.id && row.lineId !== item.lineId)
+    .reduce((sum, row) => sum + row.count, 0);
+  return Math.max(1, stockOf(item) - others);
+}
+
 export function clearCart() {
   if (typeof window === "undefined") return;
   writeItems([]);
 }
 
+export function addCartItem(product: CartProduct): AddResult {
+  const stock = product.stock;
+  if (!stock || stock < 1) {
+    return { ok: false, message: "این کالا موجود نیست." };
+  }
+
+  const current = readItems();
+  const used = current
+    .filter((item) => item.id === product.id)
+    .reduce((sum, item) => sum + item.count, 0);
+  const room = stock - used;
+
+  if (room < 1) {
+    return {
+      ok: false,
+      message: `از این کالا فقط ${stock} عدد موجود است.`,
+    };
+  }
+
+  const count = Math.min(product.count, room);
+  const lineId = product.lineId || cartLineId(product.id, product.color, product.size);
+  const found = current.find((item) => item.lineId === lineId);
+  let next: CartProduct[];
+
+  if (found) {
+    next = current.map((item) =>
+      item.lineId === lineId ? { ...item, count: item.count + count, stock } : item,
+    );
+  } else {
+    next = [...current, { ...product, lineId, count, stock }];
+  }
+
+  writeItems(next);
+
+  if (count < product.count) {
+    return {
+      ok: true,
+      message: `فقط ${count} عدد اضافه شد. موجودی این کالا ${stock} عدد است.`,
+    };
+  }
+
+  return { ok: true, message: "به سبد خرید اضافه شد." };
+}
+
 export function useCart() {
   const [items, setItems] = useState<CartProduct[]>([]);
-  // تا ready نشود، خالی بودن سبد را جدی نگیر
-  // چون localStorage فقط داخل مرورگر قابل خواندن است
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -71,38 +179,35 @@ export function useCart() {
     };
   }, []);
 
-  // اگر کالا از قبل در سبد باشد، تعدادش زیاد می‌شود
   function add(product: CartProduct) {
-    const current = readItems();
-    const found = current.find((item) => item.id === product.id);
-    let next: CartProduct[];
+    const result = addCartItem(product);
+    setItems(readItems());
+    return result;
+  }
 
-    if (found) {
-      next = current.map((item) =>
-        item.id === product.id
-          ? { ...item, count: item.count + product.count }
-          : item,
-      );
-    } else {
-      next = [...current, product];
+  function changeCount(lineId: string, count: number) {
+    const current = readItems();
+    const item = current.find((row) => row.lineId === lineId);
+    if (!item) return;
+
+    if (count < 1) {
+      const next = current.filter((row) => row.lineId !== lineId);
+      writeItems(next);
+      setItems(next);
+      return;
     }
 
+    const max = lineStockLimit(current, item);
+    const nextCount = Math.min(count, max);
+    const next = current.map((row) =>
+      row.lineId === lineId ? { ...row, count: nextCount } : row,
+    );
     writeItems(next);
     setItems(next);
   }
 
-  function changeCount(id: string, count: number) {
-    const next =
-      count < 1
-        ? items.filter((item) => item.id !== id)
-        : items.map((item) => (item.id === id ? { ...item, count } : item));
-
-    writeItems(next);
-    setItems(next);
-  }
-
-  function remove(id: string) {
-    const next = items.filter((item) => item.id !== id);
+  function remove(lineId: string) {
+    const next = items.filter((item) => item.lineId !== lineId);
     writeItems(next);
     setItems(next);
   }

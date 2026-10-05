@@ -40,6 +40,9 @@ export type AccountOrderItem = {
   count: number;
   price: number;
   discount: number;
+  color?: string;
+  colorHex?: string;
+  size?: string;
 };
 
 export type AccountOrder = {
