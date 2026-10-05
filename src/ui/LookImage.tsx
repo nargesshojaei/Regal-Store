@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import SafeImage from "@/ui/SafeImage";
 
 type LookImageProps = {
   src?: string;
@@ -22,7 +23,7 @@ export default function LookImage({
       className={`group relative overflow-hidden rounded-[15px] border border-neutral-03 bg-neutral-01 ${className}`}
     >
       {src ? (
-        <img
+        <SafeImage
           src={src}
           alt={alt}
           className="absolute inset-0 size-full object-cover object-top opacity-80 transition duration-300 ease-out group-hover:scale-[1.04] group-hover:opacity-100"
