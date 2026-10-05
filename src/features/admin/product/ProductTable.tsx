@@ -15,8 +15,10 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { categoryName, getCategories, getSubs } from "@/lib/api/categories";
 import { getProducts, PAGE_SIZE, type Product } from "@/lib/api/products";
+import { nameList } from "@/lib/variants";
 import Pagination from "@/ui/Pagination";
 import ProductPhoto from "@/ui/ProductPhoto";
+import { ColorList, SizeList } from "@/ui/VariantText";
 import ProductDeleteDialog from "./ProductDeleteDialog";
 import ProductFormModal from "./ProductFormModal";
 
@@ -113,6 +115,8 @@ export default function ProductTable() {
               <th className="px-4 py-3 text-right font-medium">تصویر</th>
               <th className="px-4 py-3 text-right font-medium">نام کالا</th>
               <th className="px-4 py-3 text-right font-medium">دسته‌بندی</th>
+              <th className="px-4 py-3 text-right font-medium">رنگ</th>
+              <th className="px-4 py-3 text-right font-medium">سایز</th>
               <th className="whitespace-nowrap px-4 py-3 text-right font-medium">
                 ویرایش/حذف
               </th>
@@ -121,13 +125,13 @@ export default function ProductTable() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-12 text-center text-neutral-09">
+                <td colSpan={6} className="px-4 py-12 text-center text-neutral-09">
                   در حال بارگذاری کالاها...
                 </td>
               </tr>
             ) : list.isError ? (
               <tr>
-                <td colSpan={4} className="px-4 py-12 text-center">
+                <td colSpan={6} className="px-4 py-12 text-center">
                   <p className="text-neutral-09">دریافت کالاها با خطا مواجه شد.</p>
                   <button
                     type="button"
@@ -140,7 +144,7 @@ export default function ProductTable() {
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-12 text-center text-neutral-09">
+                <td colSpan={6} className="px-4 py-12 text-center text-neutral-09">
                   {categoryId
                     ? "کالایی در این دسته‌بندی نیست."
                     : "کالایی ثبت نشده است. از «افزودن کالا» شروع کنید."}
@@ -163,6 +167,12 @@ export default function ProductTable() {
                         categories,
                         subList,
                       )}
+                    </td>
+                    <td className="px-4 py-3 text-neutral-11">
+                      <ColorList names={nameList(item.color)} />
+                    </td>
+                    <td className="px-4 py-3 text-neutral-11">
+                      <SizeList names={nameList(item.size)} />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -210,7 +220,15 @@ export default function ProductTable() {
         }}
       />
 
-      <ProductDeleteDialog product={toDelete} onClose={() => setToDelete(null)} />
+      <ProductDeleteDialog
+        product={toDelete}
+        categoryLabel={
+          toDelete
+            ? categoryName(toDelete.category, toDelete.subcategory, categories, subList)
+            : ""
+        }
+        onClose={() => setToDelete(null)}
+      />
     </div>
   );
 }

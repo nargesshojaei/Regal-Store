@@ -15,6 +15,7 @@ import {
 import { formatDate, formatPrice } from "@/lib/format";
 import Pagination from "@/ui/Pagination";
 import ProductPhoto from "@/ui/ProductPhoto";
+import { ColorText } from "@/ui/VariantText";
 import OrderModal from "./OrderModal";
 
 const PAGE_SIZE = 5;
@@ -92,6 +93,8 @@ export default function OrderTable() {
               <th className="px-4 py-3 text-right font-medium">نام کاربر</th>
               <th className="px-4 py-3 text-right font-medium">تصویر</th>
               <th className="px-4 py-3 text-right font-medium">کالا</th>
+              <th className="px-4 py-3 text-right font-medium">رنگ</th>
+              <th className="px-4 py-3 text-right font-medium">سایز</th>
               <th className="px-4 py-3 text-right font-medium">مجموع مبلغ</th>
               <th className="px-4 py-3 text-right font-medium">
                 <button
@@ -117,13 +120,13 @@ export default function OrderTable() {
           <tbody>
             {!orders ? (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-neutral-09">
+                <td colSpan={8} className="px-4 py-12 text-center text-neutral-09">
                   در حال بارگذاری سفارش‌ها...
                 </td>
               </tr>
             ) : visible.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-neutral-09">
+                <td colSpan={8} className="px-4 py-12 text-center text-neutral-09">
                   {status === "pending"
                     ? "سفارشی در انتظار ارسال نیست."
                     : "سفارش تحویل‌شده‌ای وجود ندارد."}
@@ -149,6 +152,24 @@ export default function OrderTable() {
                   </td>
                   <td className="px-4 py-3 text-neutral-11">
                     {item.items.map((product) => product.name).join("، ")}
+                  </td>
+                  <td className="px-4 py-3 text-neutral-11">
+                    <div className="flex flex-col gap-2">
+                      {item.items.map((product) => (
+                        <ColorText
+                          key={`${product.id}-color`}
+                          name={product.color}
+                          hex={product.colorHex}
+                        />
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-neutral-11">
+                    <div className="flex flex-col gap-2">
+                      {item.items.map((product) => (
+                        <span key={`${product.id}-size`}>{product.size || "—"}</span>
+                      ))}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-neutral-11">
                     {formatPrice(orderPaid(item))}

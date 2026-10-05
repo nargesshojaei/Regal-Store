@@ -18,8 +18,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getInventory, PAGE_SIZE, saveInventory } from "@/lib/api/inventory";
 import { formatPrice } from "@/lib/format";
 import { type Product } from "@/lib/api/products";
+import { nameList } from "@/lib/variants";
 import Pagination from "@/ui/Pagination";
 import ProductPhoto from "@/ui/ProductPhoto";
+import { ColorList, SizeList } from "@/ui/VariantText";
 import EditableCell from "./EditableCell";
 
 export default function InventoryTable() {
@@ -155,6 +157,8 @@ export default function InventoryTable() {
             <tr>
               <th className="px-4 py-3 text-right font-medium">تصویر</th>
               <th className="px-4 py-3 text-right font-medium">کالا</th>
+              <th className="px-4 py-3 text-right font-medium">رنگ</th>
+              <th className="px-4 py-3 text-right font-medium">سایز</th>
               <th className="px-4 py-3 text-right font-medium">قیمت</th>
               <th className="px-4 py-3 text-right font-medium">موجودی</th>
             </tr>
@@ -162,13 +166,13 @@ export default function InventoryTable() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-12 text-center text-neutral-09">
+                <td colSpan={6} className="px-4 py-12 text-center text-neutral-09">
                   در حال بارگذاری موجودی...
                 </td>
               </tr>
             ) : list.isError ? (
               <tr>
-                <td colSpan={4} className="px-4 py-12 text-center">
+                <td colSpan={6} className="px-4 py-12 text-center">
                   <p className="text-neutral-09">دریافت موجودی با خطا مواجه شد.</p>
                   <button
                     type="button"
@@ -181,7 +185,7 @@ export default function InventoryTable() {
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-12 text-center text-neutral-09">
+                <td colSpan={6} className="px-4 py-12 text-center text-neutral-09">
                   کالایی برای نمایش موجودی نیست.
                 </td>
               </tr>
@@ -198,6 +202,12 @@ export default function InventoryTable() {
                       <ProductPhoto product={item} alt={item.name} />
                     </td>
                     <td className="px-4 py-3 font-medium text-black">{item.name}</td>
+                    <td className="px-4 py-3 text-neutral-11">
+                      <ColorList names={nameList(item.color)} />
+                    </td>
+                    <td className="px-4 py-3 text-neutral-11">
+                      <SizeList names={nameList(item.size)} />
+                    </td>
                     <td className="px-4 py-3">
                       <EditableCell
                         show={formatPrice(row.price)}

@@ -5,18 +5,27 @@
 // قیمت و موجودی با خود کالا ذخیره می‌شوند تا در صفحه موجودی هم دیده شوند
 
 import { useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fileUrl } from "@/lib/api/client";
 import { type Category, type Sub } from "@/lib/api/categories";
 import { uploadPhoto } from "@/lib/api/files";
-import { addProduct, editProduct, type Product } from "@/lib/api/products";
+import { addProduct, editProduct, getProducts, imageIds, type Product } from "@/lib/api/products";
+import {
+  COLOR_CHOICES,
+  SIZE_CHOICES,
+  colorHex,
+  nameList,
+  uniqueNames,
+} from "@/lib/variants";
 import Modal from "@/ui/Modal";
+import SafeImage from "@/ui/SafeImage";
 import HtmlEditor from "./HtmlEditor";
 
 const inputClass =
   "h-11 w-full rounded-lg border border-neutral-03 bg-neutral-01 px-3 text-sm text-black outline-none focus:border-primary focus:bg-white";
 
 type PhotoItem = {
+  key: string;
   id?: string;
   file?: File;
   preview: string;
@@ -80,9 +89,34 @@ function Form({
     product ? String(product.quantity ?? 0) : "",
   );
   const [html, setHtml] = useState(product?.description ?? "");
+  const [colors, setColors] = useState<string[]>(nameList(product?.color));
+  const [sizes, setSizes] = useState<string[]>(nameList(product?.size));
+  const [extraColors, setExtraColors] = useState<string[]>([]);
+  const [extraSizes, setExtraSizes] = useState<string[]>([]);
+  const [colorText, setColorText] = useState("");
+  const [sizeText, setSizeText] = useState("");
   const [photos, setPhotos] = useState<PhotoItem[]>(existingPhotos(product));
+  const [zoom, setZoom] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const catalog = useQuery({
+    queryKey: ["admin-variant-options"],
+    queryFn: async () => (await getProducts(1, undefined, undefined, 100)).data || [],
+  });
+
+  const colorOptions = uniqueNames([
+    ...COLOR_CHOICES.map((item) => item.name),
+    ...(catalog.data || []).flatMap((item) => nameList(item.color)),
+    ...colors,
+    ...extraColors,
+  ]);
+  const sizeOptions = uniqueNames([
+    ...SIZE_CHOICES,
+    ...(catalog.data || []).flatMap((item) => nameList(item.size)),
+    ...sizes,
+    ...extraSizes,
+  ]);
 
   // فقط زیردسته‌های همان دسته کلی
   const subOptions = subs.filter((sub) => String(sub.category) === categoryId);
@@ -95,19 +129,44 @@ function Form({
     if (!stillThere) setSubId("");
   }
 
+  function toggleName(list: string[], value: string, setList: (next: string[]) => void) {
+    if (list.includes(value)) setList(list.filter((item) => item !== value));
+    else setList([...list, value]);
+  }
+
+  function addCustomColor() {
+    const name = colorText.trim();
+    if (!name) return;
+    setExtraColors((current) => uniqueNames([...current, name]));
+    setColors((current) => uniqueNames([...current, name]));
+    setColorText("");
+  }
+
+  function addCustomSize() {
+    const name = sizeText.trim();
+    if (!name) return;
+    setExtraSizes((current) => uniqueNames([...current, name]));
+    setSizes((current) => uniqueNames([...current, name]));
+    setSizeText("");
+  }
+
   function addFiles(list: FileList | null) {
     if (!list) return;
-    const next = photos.slice();
-
-    for (let i = 0; i < list.length; i++) {
-      const file = list[i];
-      next.push({
-        file,
-        preview: URL.createObjectURL(file),
-      });
+    // FileList بعد از خالی شدن input از بین می‌رود؛ پس همین‌جا کپی می‌شود
+    const files = Array.from(list).filter((file) => file.type.startsWith("image/"));
+    if (files.length === 0) {
+      setError("فقط فایل عکس قابل افزودن است.");
+      return;
     }
 
-    setPhotos(next);
+    const stamp = Date.now();
+    const next = files.map((file, index) => ({
+      key: `new-${stamp}-${index}-${file.name}`,
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setPhotos((current) => [...current, ...next]);
+    setError("");
   }
 
   function removePhoto(index: number) {
@@ -153,11 +212,17 @@ function Form({
 
       for (let i = 0; i < photos.length; i++) {
         const item = photos[i];
-        if (item.file) {
-          const id = await uploadPhoto(item.file);
-          photoIds.push(id);
-        } else if (item.id) {
-          photoIds.push(item.id);
+        try {
+          if (item.file) {
+            const id = await uploadPhoto(item.file);
+            photoIds.push(id);
+          } else if (item.id) {
+            photoIds.push(item.id);
+          }
+        } catch {
+          setError(`عکس ${i + 1} آپلود نشد. دوباره همان عکس را اضافه کنید.`);
+          setSaving(false);
+          return;
         }
       }
 
@@ -171,6 +236,8 @@ function Form({
         category: Number(categoryId),
         subcategory: subId ? Number(subId) : undefined,
         description: html,
+        color: colors,
+        size: sizes,
         createdAt: product?.createdAt ?? Date.now(),
       };
 
@@ -196,12 +263,19 @@ function Form({
         <span>تصاویر کالا</span>
         <div className="flex flex-wrap items-center gap-3">
           {photos.map((item, index) => (
-            <div key={item.preview} className="relative">
-              <img
-                src={item.preview}
-                alt=""
-                className="size-16 rounded-lg bg-neutral-03 object-cover"
-              />
+            <div key={item.key} className="relative">
+              <button
+                type="button"
+                onClick={() => setZoom(item.preview)}
+                className="block size-16 overflow-hidden rounded-lg"
+                aria-label={`باز کردن عکس ${index + 1}`}
+              >
+                <SafeImage
+                  src={item.preview}
+                  alt=""
+                  className="size-16 rounded-lg bg-neutral-03 object-cover"
+                />
+              </button>
               <button
                 type="button"
                 onClick={() => removePhoto(index)}
@@ -302,12 +376,50 @@ function Form({
         </label>
       </div>
 
+      <ChoiceField
+        label="رنگ‌ها"
+        options={colorOptions}
+        selected={colors}
+        text={colorText}
+        placeholder="رنگ جدید"
+        onToggle={(value) => toggleName(colors, value, setColors)}
+        onText={setColorText}
+        onAdd={addCustomColor}
+        withSwatch
+      />
+
+      <ChoiceField
+        label="سایزها"
+        options={sizeOptions}
+        selected={sizes}
+        text={sizeText}
+        placeholder="سایز جدید"
+        onToggle={(value) => toggleName(sizes, value, setSizes)}
+        onText={setSizeText}
+        onAdd={addCustomSize}
+      />
+
       <div className="flex flex-col gap-2 text-sm text-neutral-11">
         <span>توضیحات</span>
         <HtmlEditor html={product?.description ?? ""} onChange={setHtml} disabled={saving} />
       </div>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+      {zoom ? (
+        <button
+          type="button"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-6"
+          onClick={() => setZoom("")}
+          aria-label="بستن عکس"
+        >
+          <SafeImage
+            src={zoom}
+            alt=""
+            className="max-h-[80vh] max-w-[90vw] rounded-xl object-contain"
+          />
+        </button>
+      ) : null}
 
       <div className="flex justify-end">
         <button
@@ -323,23 +435,90 @@ function Form({
 }
 
 function existingPhotos(product: Product | null) {
-  const photos: PhotoItem[] = [];
-  if (!product) return photos;
+  if (!product) return [];
 
-  const ids =
-    product.image && product.image.length > 0
-      ? product.image
-      : product.thumbnail
-        ? [product.thumbnail]
-        : [];
+  return imageIds(product)
+    .map((id, index) => ({
+      key: `saved-${index}-${id}`,
+      id,
+      preview: fileUrl(id) || "",
+    }))
+    .filter((item) => item.preview);
+}
 
-  for (let i = 0; i < ids.length; i++) {
-    const preview = fileUrl(ids[i]);
-    if (!preview) continue;
-    photos.push({ id: ids[i], preview });
-  }
-
-  return photos;
+function ChoiceField({
+  label,
+  options,
+  selected,
+  text,
+  placeholder,
+  onToggle,
+  onText,
+  onAdd,
+  withSwatch = false,
+}: {
+  label: string;
+  options: string[];
+  selected: string[];
+  text: string;
+  placeholder: string;
+  onToggle: (value: string) => void;
+  onText: (value: string) => void;
+  onAdd: () => void;
+  withSwatch?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-2 text-sm text-neutral-11">
+      <span>{label}</span>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => {
+          const active = selected.includes(option);
+          return (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={active}
+              onClick={() => onToggle(option)}
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs ${
+                active
+                  ? "border-black bg-neutral-01 text-black"
+                  : "border-neutral-03 text-neutral-11"
+              }`}
+            >
+              {withSwatch ? (
+                <span
+                  className="size-3.5 rounded-full border border-black/10"
+                  style={{ backgroundColor: colorHex(option) }}
+                />
+              ) : null}
+              {option}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex gap-2">
+        <input
+          value={text}
+          onChange={(event) => onText(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              onAdd();
+            }
+          }}
+          placeholder={placeholder}
+          className={inputClass}
+        />
+        <button
+          type="button"
+          onClick={onAdd}
+          className="shrink-0 rounded-lg border border-neutral-03 px-3 text-sm text-neutral-11 hover:bg-neutral-03"
+        >
+          افزودن
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function onlyDigits(value: string) {

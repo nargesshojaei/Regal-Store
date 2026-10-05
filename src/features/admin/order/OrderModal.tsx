@@ -11,6 +11,7 @@ import {
 } from "@/lib/account";
 import Modal from "@/ui/Modal";
 import ProductPhoto from "@/ui/ProductPhoto";
+import { ColorText } from "@/ui/VariantText";
 import OrderStatusBadge from "./OrderStatusBadge";
 
 export default function OrderModal({
@@ -75,7 +76,6 @@ export default function OrderModal({
               label="زمان تحویل درخواستی"
               value={order.deliveryDate ? formatLongDate(order.deliveryDate) : "—"}
             />
-            {order.job ? <Info label="شغل" value={order.job} /> : null}
             {order.postalCode ? <Info label="کد پستی" value={order.postalCode} /> : null}
             {order.notes ? <Info label="توضیحات" value={order.notes} wide /> : null}
           </dl>
@@ -88,6 +88,8 @@ export default function OrderModal({
                   <tr>
                     <th className="px-4 py-3 text-right font-medium">تصویر</th>
                     <th className="px-4 py-3 text-right font-medium">کالا</th>
+                    <th className="px-4 py-3 text-right font-medium">رنگ</th>
+                    <th className="px-4 py-3 text-right font-medium">سایز</th>
                     <th className="px-4 py-3 text-right font-medium">قیمت</th>
                     <th className="px-4 py-3 text-right font-medium">تعداد</th>
                     <th className="px-4 py-3 text-right font-medium">مجموع</th>
@@ -102,6 +104,10 @@ export default function OrderModal({
                           <ProductPhoto src={item.image} alt={item.name} />
                         </td>
                         <td className="px-4 py-3 font-medium text-black">{item.name}</td>
+                        <td className="px-4 py-3 text-neutral-11">
+                          <ColorText name={item.color} hex={item.colorHex} />
+                        </td>
+                        <td className="px-4 py-3 text-neutral-11">{item.size || "—"}</td>
                         <td className="px-4 py-3 text-neutral-11">{formatPrice(item.price)}</td>
                         <td className="px-4 py-3 text-neutral-11">{item.count}</td>
                         <td className="px-4 py-3 text-black">{formatPrice(line)}</td>
