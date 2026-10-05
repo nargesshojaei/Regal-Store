@@ -11,10 +11,13 @@ export const dynamic = "force-dynamic";
 // آدرس: /shop/12  →  12 همان آیدی کالاست
 export default async function ProductDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ color?: string }>;
 }) {
   const { slug } = await params;
+  const query = await searchParams;
 
   let product;
   try {
@@ -52,5 +55,11 @@ export default async function ProductDetailPage({
 
   const detail = toDetailProduct(product, categoryList, subList);
 
-  return <ProductDetail product={detail} similar={similar} />;
+  return (
+    <ProductDetail
+      product={detail}
+      similar={similar}
+      pickedColor={query.color || ""}
+    />
+  );
 }
