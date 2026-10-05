@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCart } from "@/lib/cart";
+import { lineStockLimit, useCart } from "@/lib/cart";
 import CartItem from "@/features/cart/CartItem";
 import CartSummary from "@/features/cart/CartSummary";
 
@@ -24,8 +24,9 @@ export default function CartPage() {
           <div>
             {items.map((item) => (
               <CartItem
-                key={item.id}
+                key={item.lineId}
                 item={item}
+                maxCount={lineStockLimit(items, item)}
                 onChangeCount={changeCount}
                 onRemove={remove}
               />
