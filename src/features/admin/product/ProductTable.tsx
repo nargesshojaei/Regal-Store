@@ -77,7 +77,7 @@ export default function ProductTable() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-black">مدیریت کالاها</h1>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-neutral-11">
+          <label className="flex w-full items-center gap-2 text-sm text-neutral-11 sm:w-auto">
             دسته‌بندی
             <select
               value={category}
@@ -85,7 +85,7 @@ export default function ProductTable() {
                 setCategory(e.target.value);
                 setPage(1);
               }}
-              className="h-10 min-w-44 rounded-lg border border-neutral-03 bg-white px-3 text-sm text-black outline-none focus:border-primary"
+              className="h-10 min-w-0 flex-1 rounded-lg border border-neutral-03 bg-white px-3 text-sm text-black outline-none focus:border-primary sm:w-44 sm:flex-none"
             >
               <option value="">همه</option>
               {categories.map((item, index) => (

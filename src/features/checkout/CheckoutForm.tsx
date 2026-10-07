@@ -171,7 +171,7 @@ export default function CheckoutForm() {
   }
 
   return (
-    <div dir="rtl" className="mx-auto max-w-6xl px-6 py-10 md:px-12">
+    <div dir="rtl" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:px-12 md:py-10">
       <CheckoutSteps current="info" />
 
       <form
@@ -311,7 +311,7 @@ function CartSide({
               ) : null}
               <p className="text-xs text-neutral-08">{faDigits(item.count)} عدد</p>
             </div>
-            <p className="text-xs text-neutral-11">
+            <p className="shrink-0 text-xs text-neutral-11">
               {formatPrice(item.price * item.count)} تومان
             </p>
           </li>

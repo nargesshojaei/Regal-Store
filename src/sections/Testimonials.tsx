@@ -10,7 +10,7 @@ export default function Testimonials({ avatars = [] }: { avatars?: string[] }) {
 
   return (
     <section dir="rtl" className="bg-white py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-12">
         <SectionHeading title="رضایت مشتریان از ارزشمندترین دارایی ماست" />
         <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
           {items.map((item) => (

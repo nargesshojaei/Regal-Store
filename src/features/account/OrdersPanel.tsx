@@ -55,7 +55,7 @@ export default function OrdersPanel() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-base font-medium text-black">تاریخچه سفارشات</h1>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-neutral-09">نوع سفارش</span>
           <Select value={filter} onValueChange={(value) => setFilter(value || "all")}>
             <SelectTrigger className="w-36 rounded-full bg-white">
@@ -162,7 +162,28 @@ function OrderExtra({ order }: { order: AccountOrder }) {
 
 function OrderTable({ order }: { order: AccountOrder }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-neutral-03">
+    <>
+      <ul className="space-y-3 sm:hidden">
+        {order.items.map((item) => {
+          const line = item.price * item.count - item.discount;
+          return (
+            <li key={item.id} className="rounded-xl border border-neutral-03 px-3 py-3 text-sm">
+              <p className="font-medium text-black">{item.name}</p>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-09">
+                <span className="inline-flex items-center gap-1">
+                  رنگ: <ColorText name={item.color} hex={item.colorHex} />
+                </span>
+                <span>سایز: {item.size || "—"}</span>
+                <span>تعداد: {formatPrice(item.count)}</span>
+                <span>قیمت: {formatPrice(item.price)}</span>
+                <span>تخفیف: {item.discount ? formatPrice(item.discount) : "—"}</span>
+              </div>
+              <p className="mt-2 text-sm text-black">مبلغ کل: {formatPrice(line)} تومان</p>
+            </li>
+          );
+        })}
+      </ul>
+    <div className="hidden overflow-x-auto rounded-xl border border-neutral-03 sm:block">
       <table className="w-full min-w-[520px] text-sm">
         <thead className="bg-neutral-01 text-neutral-09">
           <tr>
@@ -197,5 +218,6 @@ function OrderTable({ order }: { order: AccountOrder }) {
         </tbody>
       </table>
     </div>
+    </>
   );
 }

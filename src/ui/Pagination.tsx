@@ -52,7 +52,7 @@ export default function Pagination({
   return (
     <nav
       aria-label="صفحه‌بندی"
-      className="mt-6 flex items-center justify-center gap-1"
+      className="mt-6 flex flex-wrap items-center justify-center gap-1"
     >
       <button
         type="button"

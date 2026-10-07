@@ -36,7 +36,7 @@ export default function WishlistPage() {
   }, [ids]);
 
   return (
-    <div dir="rtl" className="mx-auto max-w-7xl px-6 py-12 md:px-12">
+    <div dir="rtl" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:px-12 md:py-12">
       <h1 className="text-2xl font-semibold text-black">علاقه‌مندی‌ها</h1>
       {loading ? (
         <p className="mt-8 text-sm text-neutral-09">در حال بارگذاری...</p>

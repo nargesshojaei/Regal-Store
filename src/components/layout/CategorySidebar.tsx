@@ -147,18 +147,18 @@ export default function CategorySidebar() {
       {open ? (
         <>
           <div
-            className="fixed inset-x-0 top-24 bottom-0 z-40 bg-black/35"
+            className="fixed inset-x-0 top-20 bottom-0 z-40 bg-black/35 md:top-24"
             onClick={closeMenu}
           />
 
-          <div className="fixed inset-x-0 top-24 z-50 bg-white px-6 py-10 md:px-12">
+          <div className="fixed inset-x-0 top-20 z-50 max-h-[calc(100dvh-5rem)] overflow-y-auto bg-white px-4 py-6 sm:px-6 md:top-24 md:px-12 md:py-10">
             {loading ? (
               <p className="text-sm text-neutral-09">در حال بارگذاری...</p>
             ) : categories.length === 0 ? (
               <p className="text-sm text-neutral-09">دسته‌بندی‌ای پیدا نشد.</p>
             ) : (
-              <div className="mx-auto flex max-w-7xl items-start gap-8">
-                <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-8 gap-y-8 md:grid-cols-4">
+              <div className="mx-auto flex max-w-7xl flex-col items-start gap-8 xl:flex-row">
+                <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 xl:grid-cols-4">
                   {categories.map((cat, index) => (
                     <div key={`category-${cat.id}-${index}`}>
                       <Link
@@ -187,7 +187,7 @@ export default function CategorySidebar() {
                   ))}
                 </div>
 
-                <div className="flex shrink-0 items-start gap-5">
+                <div className="hidden shrink-0 items-start gap-5 xl:flex">
                   <p className="pt-1 text-sm font-semibold text-black">
                     دسته‌بندی‌های پرطرفدار
                   </p>

@@ -69,8 +69,8 @@ export default function TrendChart({
 
   return (
     <section className="rounded-xl border border-neutral-03 bg-white p-5">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
           <h2 className="text-base font-semibold text-black">{title}</h2>
           <p className="mt-1 text-xs leading-6 text-neutral-09">{hint}</p>
         </div>

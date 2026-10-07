@@ -183,7 +183,7 @@ function StatCard({
         </span>
         <p className="text-sm text-neutral-09">{label}</p>
       </div>
-      <p className="mt-4 text-lg font-semibold text-black">{value}</p>
+      <p className="mt-4 break-words text-base font-semibold leading-7 text-black sm:text-lg">{value}</p>
       <p className="mt-1 text-xs leading-6 text-neutral-08">{note}</p>
     </article>
   );

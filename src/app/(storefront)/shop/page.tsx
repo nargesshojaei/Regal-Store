@@ -40,7 +40,7 @@ export default async function ShopPage({
   }
 
   return (
-    <div dir="rtl" className="mx-auto max-w-7xl px-6 py-10 md:px-12">
+    <div dir="rtl" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-12 md:py-10">
       <ShopList
         items={items}
         title={title}

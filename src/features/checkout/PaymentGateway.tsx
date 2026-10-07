@@ -145,8 +145,8 @@ export default function PaymentGateway() {
   return (
     <div dir="rtl" className="min-h-screen bg-[#eef0f4] px-4 py-8 md:py-12">
       <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-[#ececf1] bg-white shadow-sm">
-        <div className="flex items-center justify-between bg-[#f03486] px-5 py-4 text-white md:px-8">
-          <p className="text-sm font-medium md:text-base">درگاه اینترنتی «پرداخت رگال»</p>
+        <div className="flex items-center justify-between gap-3 bg-[#f03486] px-4 py-4 text-white sm:px-5 md:px-8">
+          <p className="min-w-0 text-sm font-medium md:text-base">درگاه اینترنتی «پرداخت رگال»</p>
           <span className="text-sm tracking-wide">regal</span>
         </div>
 

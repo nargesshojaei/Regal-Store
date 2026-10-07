@@ -44,9 +44,9 @@ export default function ProductCard({
       <div className="mt-4 flex flex-col items-start gap-2">
         <ColorSwatch colors={colors} selected={color} onSelect={setColor} />
         <Link href={href}>
-          <h3 className="text-sm text-black group-hover:text-primary">{product.name}</h3>
+          <h3 className="line-clamp-2 text-sm leading-6 text-black group-hover:text-primary">{product.name}</h3>
         </Link>
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm">
           <span className="text-neutral-11">{formatPrice(product.price)} تومان</span>
           {product.originalPrice ? (
             <span className="text-neutral-08 line-through">

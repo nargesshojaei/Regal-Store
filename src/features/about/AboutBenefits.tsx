@@ -12,7 +12,7 @@ const benefitIcons = {
 export default function AboutBenefits() {
   return (
     <section className="bg-white py-16 md:py-20">
-      <div className="mx-auto grid max-w-6xl gap-12 px-6 sm:grid-cols-3 md:px-12">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:grid-cols-3 sm:px-6 md:px-12">
         {aboutBenefits.map((benefit) => {
           const Icon = benefitIcons[benefit.id];
 

@@ -41,6 +41,23 @@ body {
   background: var(--color-white);
   color: var(--color-black);
   font-family: var(--font-sans);
+  overflow-x: clip;
+}
+
+.rich-text {
+  overflow-wrap: anywhere;
+}
+
+.rich-text img,
+.rich-text video,
+.rich-text iframe,
+.rich-text table {
+  max-width: 100%;
+}
+
+.rich-text img,
+.rich-text video {
+  height: auto;
 }
 
 @theme inline {

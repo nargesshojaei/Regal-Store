@@ -76,6 +76,7 @@ function SearchField({
         type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        placeholder="جستجوی کالا"
         className="h-11 w-full rounded-full border border-neutral-03 bg-white pr-11 pl-4 text-sm text-black outline-none placeholder:text-neutral-08 focus:border-neutral-08"
       />
     </div>
@@ -152,7 +153,6 @@ export default function ShopList({
   }, [items]);
 
   const [query, setQuery] = useState("");
-  const [secondQuery, setSecondQuery] = useState("");
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<ShopFilters>(() =>
@@ -171,11 +171,9 @@ export default function ShopList({
 
   const visible = useMemo(() => {
     const nameText = query.trim();
-    const extraText = secondQuery.trim();
 
     const filtered = items.filter((item) => {
-      if (nameText && !item.name.includes(nameText)) return false;
-      if (extraText && !textOf(item).includes(extraText)) return false;
+      if (nameText && !textOf(item).includes(nameText)) return false;
       if (filters.inStock && item.quantity <= 0) return false;
       if (filters.types.length > 0 && !filters.types.includes(Number(item.subcategoryId))) {
         return false;
@@ -208,7 +206,7 @@ export default function ShopList({
     });
 
     return sortProducts(filtered, filters.sort);
-  }, [items, query, secondQuery, filters, priceBounds]);
+  }, [items, query, filters, priceBounds]);
 
   const pageCount = Math.max(1, Math.ceil(visible.length / SHOP_PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -252,22 +250,13 @@ export default function ShopList({
             نمایش
           </button>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <SearchField
-            value={query}
-            onChange={(value) => {
-              setQuery(value);
-              setPage(1);
-            }}
-          />
-          <SearchField
-            value={secondQuery}
-            onChange={(value) => {
-              setSecondQuery(value);
-              setPage(1);
-            }}
-          />
-        </div>
+        <SearchField
+          value={query}
+          onChange={(value) => {
+            setQuery(value);
+            setPage(1);
+          }}
+        />
       </div>
 
       <div className="mt-8 grid items-start gap-10 lg:grid-cols-[240px_minmax(0,1fr)]">
@@ -276,7 +265,7 @@ export default function ShopList({
           {paged.length === 0 ? (
             <p className="mt-10 text-sm text-neutral-09">کالایی پیدا نشد.</p>
           ) : (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-4 sm:gap-y-10 md:grid-cols-3 md:gap-x-6">
               {paged.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

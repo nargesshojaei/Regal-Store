@@ -57,6 +57,7 @@ export default function AccountSidebar() {
       </Card>
 
       <Card className="gap-1 p-2 shadow-none ring-neutral-03">
+        <nav className="flex gap-1 overflow-x-auto md:flex-col">
         {links.map((item) => {
           const Icon = item.icon;
           const active = item.exact
@@ -67,7 +68,7 @@ export default function AccountSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+              className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-sm whitespace-nowrap transition-colors md:whitespace-normal ${
                 active
                   ? "bg-neutral-03 text-black"
                   : "text-neutral-11 hover:bg-neutral-01"
@@ -75,9 +76,10 @@ export default function AccountSidebar() {
             >
               <Icon className="size-4" strokeWidth={1.6} />
               {item.label}
-            </Link>
-          );
+          </Link>
+        );
         })}
+        </nav>
 
         <Separator className="my-1" />
 

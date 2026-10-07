@@ -54,7 +54,7 @@ export default function Footer() {
   return (
     <footer dir="rtl" className="relative bg-black text-white">
     
-      <div className="mx-auto flex max-w-7xl flex-col gap-12 px-6 py-16 md:px-12 lg:flex-row lg:items-start lg:gap-10">
+      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-12 sm:px-6 md:px-12 md:py-16 lg:flex-row lg:items-start lg:gap-10">
         
         <div className="flex w-full max-w-[400px] shrink-0 flex-col items-start gap-6">
           
@@ -70,13 +70,13 @@ export default function Footer() {
 
 {/*Event Handler  ----  js code in jsx and also stop refershing --- we said what happen after onclick */}
           <form
-            className="flex w-full items-center gap-3"
+            className="flex w-full flex-col gap-3 min-[420px]:flex-row min-[420px]:items-center"
             onSubmit={(event) => event.preventDefault()}
           >
             <input
               type="email"
               placeholder="ایمیل خود را وارد کنید..."
-              className="h-12 flex-1 rounded-lg border border-neutral-08 bg-transparent px-5 text-sm text-neutral-03 placeholder:text-neutral-08 focus:outline-none"
+              className="h-12 min-w-0 flex-1 rounded-lg border border-neutral-08 bg-transparent px-5 text-sm text-neutral-03 placeholder:text-neutral-08 focus:outline-none"
             />
             <button
               type="submit"
@@ -105,7 +105,7 @@ export default function Footer() {
 
 
         {/* Link columns — لینک‌های کمکی → دسته محصولات → ارتباط با ما → اطلاعات تماس */}
-        <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4">
+        <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-8">
 
           {linkColumns.map((col) => (
             <div key={col.title} className="flex flex-col items-start gap-5">
@@ -158,8 +158,8 @@ export default function Footer() {
 
 
       <div className="border-t border-neutral-12">
-        <div className="mx-auto flex max-w-7xl flex-col-reverse items-center justify-between gap-4 px-6 py-5 md:flex-row md:px-12">
-          <div className="flex items-center gap-2 text-sm text-neutral-09">
+        <div className="mx-auto flex max-w-7xl flex-col-reverse items-center justify-between gap-4 px-4 py-5 text-center sm:px-6 md:flex-row md:px-12 md:text-right">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs leading-6 text-neutral-09 sm:text-sm">
             <span>تمامی حقوق مادی و معنوی برای مجموعه رگال محفوظ است.</span>
             <Copyright className="size-4" strokeWidth={1.5} />
           </div>

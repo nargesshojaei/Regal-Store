@@ -118,7 +118,7 @@ export default function ProductDetail({
   }
 
   return (
-    <div dir="rtl" className="mx-auto max-w-7xl px-6 py-10 md:px-12">
+    <div dir="rtl" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-12 md:py-10">
       <nav className="flex flex-wrap items-center gap-1 text-sm text-neutral-08">
         <Link href="/" className="hover:text-primary">
           صفحه اصلی
@@ -290,7 +290,7 @@ export default function ProductDetail({
         {product.description ? (
           isHtml ? (
             <div
-              className="mt-4 text-sm leading-8 text-neutral-11"
+              className="rich-text mt-4 overflow-x-auto text-sm leading-8 text-neutral-11"
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           ) : (

@@ -84,7 +84,7 @@ export default function ProductGallery({
         </div>
       ) : null}
 
-      <LookImage src={current} alt={name} className="min-h-[360px] w-full lg:h-full">
+      <LookImage src={current} alt={name} className="min-h-[260px] w-full sm:min-h-[360px] lg:h-full">
         {discountPercent ? (
           <span className="absolute top-4 left-4 z-10">
             <Badge>٪{discountPercent}</Badge>

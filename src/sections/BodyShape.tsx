@@ -10,7 +10,7 @@ export default function BodyShape({ looks = [] }: { looks?: HomeLook[] }) {
 
   return (
     <section dir="rtl" className="bg-white py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-12">
         <div className="mx-auto max-w-2xl text-center">
           <SectionHeading title="طراحی و دوخت بر اساس شکل بدن شما" align="center" />
           <p className="mt-5 text-sm leading-8 text-neutral-09">

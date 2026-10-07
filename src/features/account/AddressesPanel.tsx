@@ -153,7 +153,7 @@ export default function AddressesPanel() {
         addresses.map((address) => (
           <Card key={address.id} className="gap-3 p-4 shadow-none ring-neutral-03">
             <div className="flex items-start justify-between gap-3">
-              <div className="space-y-2">
+              <div className="min-w-0 flex-1 space-y-2">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-black">{address.title}</p>
                   {address.isDefault ? (
@@ -162,8 +162,8 @@ export default function AddressesPanel() {
                     </Badge>
                   ) : null}
                 </div>
-                <p className="text-sm leading-7 text-neutral-11">{addressText(address)}</p>
-                <p className="text-xs text-neutral-08">
+                <p className="break-words text-sm leading-7 text-neutral-11">{addressText(address)}</p>
+                <p className="break-words text-xs text-neutral-08">
                   {address.receiver} | {address.phone} | کد پستی {address.postalCode || "—"}
                 </p>
               </div>

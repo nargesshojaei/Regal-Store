@@ -7,7 +7,7 @@ export default async function DiscountPage() {
   const catalog = await getHomeCatalog();
 
   return (
-    <div dir="rtl" className="mx-auto max-w-7xl px-6 py-12 md:px-12">
+    <div dir="rtl" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:px-12 md:py-12">
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold text-black">محصولات تخفیف‌دار</h1>
         <span className="size-1.5 rounded-full bg-black" />
