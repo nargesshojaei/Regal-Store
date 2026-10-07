@@ -4,6 +4,7 @@ import RegalLogo from "@/components/brand/RegalLogo";
 import CategorySidebar from "@/components/layout/CategorySidebar";
 import HeaderCartLink from "@/components/layout/HeaderCartLink";
 import HeaderWishlistLink from "@/components/layout/HeaderWishlistLink";
+import MobileNav from "@/components/layout/MobileNav";
 
 const iconClass =
   "flex size-9 items-center justify-center rounded-lg transition-colors hover:bg-neutral-03 md:size-10";
@@ -14,9 +15,10 @@ export default function Header() {
       dir="rtl"
       className="sticky top-0 z-50 bg-white/90 backdrop-blur-md"
     >
-      <div className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-5 md:px-12">
-        <Link href="/" className="flex flex-1 justify-start" aria-label="رگال">
-          <RegalLogo className="h-8 w-auto md:h-9" />
+      <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 md:px-12 lg:gap-6 lg:py-5">
+        <MobileNav />
+        <Link href="/" className="flex min-w-0 flex-1 justify-start" aria-label="رگال">
+          <RegalLogo className="h-7 w-auto sm:h-8 md:h-9" />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -41,7 +43,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-1">
+        <div className="flex shrink-0 items-center justify-end gap-0.5 sm:gap-1 lg:flex-1">
           <Link href="/search" aria-label="جستجو" className={iconClass}>
             <Search className="size-4" strokeWidth={1.5} />
           </Link>
@@ -50,7 +52,7 @@ export default function Header() {
           <Link href="/account" aria-label="حساب کاربری" className={iconClass}>
             <User className="size-4" strokeWidth={1.5} />
           </Link>
-          <Link href="/admin/login" aria-label="پنل مدیریت" className={iconClass}>
+          <Link href="/admin/login" aria-label="پنل مدیریت" className={`${iconClass} hidden sm:flex`}>
             <LayoutDashboard className="size-4" strokeWidth={1.5} />
           </Link>
         </div>

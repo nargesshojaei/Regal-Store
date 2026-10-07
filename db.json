@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "firstName": "دریا",
+      "lastName": "شجاعی",
+      "phone": "09104997125",
+      "email": "nargesshojaei@gmail.com",
+      "id": "v6acKohZj6E"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

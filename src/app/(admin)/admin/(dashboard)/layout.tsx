@@ -19,7 +19,7 @@ export default async function AdminDashboardLayout({
       <AdminHeader />
       <div className="flex flex-1">
         <AdminSidebar />
-        <main className="min-w-0 flex-1 p-6 md:p-8">{children}</main>
+        <main className="min-w-0 flex-1 p-4 sm:p-6 md:p-8">{children}</main>
       </div>
       <AdminFooter />
     </div>

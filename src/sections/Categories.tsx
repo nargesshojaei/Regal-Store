@@ -20,7 +20,7 @@ export default function Categories({ items = [] }: { items?: Category[] }) {
 
   return (
     <section dir="rtl" className="bg-white py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-12">
         <SectionHeading title="دسته‌بندی محصولات" />
 
         {cards.length === 0 ? (

@@ -13,7 +13,7 @@ export default function DiscountProducts({
 
   return (
     <section dir="rtl" className="bg-white py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-12">
         <div className="flex items-center gap-2">
           <SectionHeading title="محصولات تخفیف‌دار" />
           <Percent className="size-4 text-primary" strokeWidth={1.75} />

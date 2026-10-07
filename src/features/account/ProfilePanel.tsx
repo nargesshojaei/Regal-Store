@@ -1,8 +1,6 @@
 "use client";
-//نمایش و ویرایش نام، نام‌خانوادگی، تلفن و ایمیل است.
-// صفحه اطلاعات حساب
-// حالت دیدن و حالت ویرایش توی همین کامپوننت هست
-// ذخیره = localStorage
+// نمایش و ویرایش نام، نام‌خانوادگی، تلفن و ایمیل.
+// ذخیره هم در مرورگر می‌ماند و هم با PATCH به json-server می‌رود.
 
 //	فقط سفارش ثبت‌شده را نشان می‌دهد. وضعیت «در انتظار ارسال» یا «تحویل داده شده» است و با ادمین یکی است.
 import { useState } from "react";
@@ -17,6 +15,7 @@ import {
   useProfile,
   type Profile,
 } from "@/lib/account";
+import { updateUser } from "@/lib/api/users";
 
 const viewRows = [
   { key: "firstName", label: "نام" },
@@ -36,6 +35,8 @@ export default function ProfilePanel() {
   const profile = useProfile();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Profile | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   if (!profile) {
     return <p className="text-sm text-neutral-09">در حال بارگذاری...</p>;
@@ -51,15 +52,32 @@ export default function ProfilePanel() {
     setForm(null);
   }
 
-  function save() {
-    if (!form) return;
-    saveProfile({
+  async function save() {
+    if (!form || saving) return;
+
+    const nextProfile: Profile = {
+      id: form.id,
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       phone: form.phone.trim(),
       email: form.email.trim(),
-    });
-    setEditing(false);
+    };
+
+    setSaving(true);
+    setError("");
+
+    try {
+      const saved = await updateUser(nextProfile);
+      saveProfile({
+        ...nextProfile,
+        id: saved.id || nextProfile.id,
+      });
+      setEditing(false);
+    } catch {
+      setError("ذخیره روی json-server انجام نشد. npm run server را اجرا کنید.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function change(key: keyof Profile, value: string) {
@@ -113,9 +131,16 @@ export default function ProfilePanel() {
             />
           </div>
 
+          {error ? <p className="text-xs text-red-500">{error}</p> : null}
+
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button type="button" className="h-11 rounded-lg px-6" onClick={save}>
-              ذخیره تغییرات
+            <Button
+              type="button"
+              className="h-11 rounded-lg px-6"
+              onClick={save}
+              disabled={saving}
+            >
+              {saving ? "در حال ذخیره..." : "ذخیره تغییرات"}
             </Button>
             <Button
               type="button"
@@ -132,13 +157,13 @@ export default function ProfilePanel() {
           {viewRows.map((row) => (
             <div
               key={row.key}
-              className="grid grid-cols-[9rem_1fr] items-center gap-3 rounded-xl border border-neutral-03 px-4 py-3"
+              className="grid grid-cols-1 items-center gap-1 rounded-xl border border-neutral-03 px-4 py-3 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-3"
             >
               <span className="text-sm text-black">{row.label}</span>
               {/* مقدار سمت چپ ردیف، مثل طرح */}
               <span
                 dir={row.key === "phone" ? "ltr" : undefined}
-                className="text-left text-sm text-neutral-08"
+                className="min-w-0 break-words text-sm text-neutral-08 sm:text-left"
               >
                 {showValue(profile, row.key)}
               </span>

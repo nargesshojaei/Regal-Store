@@ -11,7 +11,7 @@ import { aboutFaq, aboutQuestions } from "@/data/about";
 export default function AboutFaq() {
   return (
     <section className="bg-neutral-01 pb-20 md:pb-28">
-      <div className="mx-auto grid max-w-7xl items-start gap-10 px-6 md:px-12 lg:grid-cols-2 lg:gap-16">
+      <div className="mx-auto grid max-w-7xl items-start gap-10 px-4 sm:px-6 md:px-12 lg:grid-cols-2 lg:gap-16">
         <div>
           <h2 className="max-w-md text-3xl font-bold leading-snug text-black md:text-4xl">
             {aboutFaq.title}

@@ -17,7 +17,7 @@ export default function ColorSwatch({
   const box = size === "md" ? "size-6" : "size-3.5";
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex max-w-full flex-wrap items-center gap-1.5">
       {colors.map((color) => {
         const active = selected === color.name;
         const className = `${box} rounded-full border ${

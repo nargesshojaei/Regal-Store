@@ -17,15 +17,16 @@ export default function CartItem({
   const atMax = item.count >= maxCount;
 
   return (
-    <div className="flex items-center gap-4 border-b border-neutral-03 py-5">
+    <div className="flex flex-col gap-3 border-b border-neutral-03 py-5 sm:flex-row sm:items-center sm:gap-4">
+      <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
       {item.image ? (
         <img
           src={item.image}
           alt={item.name}
-          className="size-20 rounded-xl object-cover object-top"
+          className="size-16 shrink-0 rounded-xl object-cover object-top sm:size-20"
         />
       ) : (
-        <div className="size-20 rounded-xl bg-neutral-03" />
+        <div className="size-16 shrink-0 rounded-xl bg-neutral-03 sm:size-20" />
       )}
 
       <div className="min-w-0 flex-1">
@@ -51,7 +52,9 @@ export default function CartItem({
           </p>
         ) : null}
       </div>
+      </div>
 
+      <div className="flex items-center justify-between gap-3 sm:contents">
       <div className="flex items-center gap-2 rounded-full border border-neutral-03 px-2 py-1">
         <button
           type="button"
@@ -73,7 +76,7 @@ export default function CartItem({
         </button>
       </div>
 
-      <p className="w-28 text-left text-sm text-black">{formatPrice(linePrice)} تومان</p>
+      <p className="min-w-0 flex-1 text-left text-sm text-black sm:w-28 sm:flex-none">{formatPrice(linePrice)} تومان</p>
 
       <button
         type="button"
@@ -83,6 +86,7 @@ export default function CartItem({
       >
         <Trash2 className="size-4 text-neutral-09" strokeWidth={1.5} />
       </button>
+      </div>
     </div>
   );
 }

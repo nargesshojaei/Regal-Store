@@ -2,12 +2,14 @@
 //خواندن و ذخیره پروفایل، آدرس، سفارش و وضعیت ورود را انجام می‌دهد وهوک را می‌دهد.
 // حساب کاربری فروشگاه
 // پروفایل، آدرس و سفارش داخل localStorage می‌مونن
+// پروفایل علاوه بر مرورگر، با درخواست به json-server هم ذخیره می‌شود
 // سفارش‌ها بین فروشگاه و ادمین مشترک‌اند
 // تا با رفرش صفحه پاک نشن
 
 import { useEffect, useState } from "react";
 
 export type Profile = {
+  id: string;
   firstName: string;
   lastName: string;
   phone: string;
@@ -68,6 +70,7 @@ const LOGIN_KEY = "regal-logged-in";
 const EVENT = "regal-account-change";
 
 const emptyProfile: Profile = {
+  id: "",
   firstName: "",
   lastName: "",
   phone: "09126636537",

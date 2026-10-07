@@ -13,7 +13,7 @@ export default function FeaturedCategories({
 
   return (
     <section dir="rtl" className="bg-white py-16 md:py-20">
-      <div className="mx-auto flex max-w-7xl flex-col gap-16 px-6 md:gap-20 md:px-12">
+      <div className="mx-auto flex max-w-7xl flex-col gap-16 px-4 sm:px-6 md:gap-20 md:px-12">
         {visible.map((group) => (
           <div key={group.title}>
             <SectionHeading title={group.title} />

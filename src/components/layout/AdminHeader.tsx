@@ -30,10 +30,10 @@ export default function AdminHeader() {
       dir="rtl"
       className="sticky top-0 z-50 border-b border-neutral-03 bg-white/90 backdrop-blur-md"
     >
-      <div className="flex w-full items-center gap-6 px-6 py-4 md:px-8">
-        <Link href="/admin" className="flex shrink-0 items-center gap-3">
-          <RegalLogo className="h-8 w-auto" />
-          <span className="rounded-full bg-primary-tint-02 px-3 py-1 text-xs text-primary">
+      <div className="flex w-full items-center gap-3 px-4 py-3 sm:gap-6 sm:px-6 sm:py-4 md:px-8">
+        <Link href="/admin" className="flex min-w-0 shrink items-center gap-2 sm:gap-3">
+          <RegalLogo className="h-7 w-auto sm:h-8" />
+          <span className="hidden rounded-full bg-primary-tint-02 px-3 py-1 text-xs text-primary sm:inline">
             پنل مدیریت
           </span>
         </Link>

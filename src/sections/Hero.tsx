@@ -31,15 +31,15 @@ export default function Hero({
 
   return (
     <section dir="rtl" className="bg-white">
-      <div className="mx-auto max-w-7xl px-6 pb-10 pt-6 md:px-12 md:pb-12 md:pt-8">
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 md:px-12 md:pb-12 md:pt-8">
         <div className="grid items-stretch gap-4 md:grid-cols-4 md:gap-5">
           {/* متن و ۳ عکس: در RTL سمت راست می‌آیند */}
           <div className="flex min-w-0 flex-col md:col-span-3">
             <div className="flex flex-col items-start text-right">
-              <h1 className="max-w-[16ch] text-7xl font-semibold leading-[1.45] text-black md:text-[63px] md:leading-[1.4]">
+              <h1 className="text-[1.75rem] font-semibold leading-snug text-black sm:text-4xl md:max-w-[16ch] md:text-5xl lg:text-[63px] lg:leading-[1.4]">
                 لباس‌هایی که داستان شما را روایت می‌کنند
               </h1>
-              <p className="mt-2 max-w-[42ch] text-[20px] leading-6 text-neutral-09 md:text-[17px] md:leading-7">
+              <p className="mt-2 max-w-[42ch] text-base leading-7 text-neutral-09 md:text-[17px]">
                 هر لباس را با دقت و عشق طراحی کرده‌ایم تا زیبایی، اعتمادبه‌نفس و
                 روایت شخصی شما را کامل کند.
               </p>
@@ -81,7 +81,7 @@ export default function Hero({
             </div>
 
             {/* ۳ ستون کاملاً هم‌اندازه */}
-            <div className="mt-6 grid grid-cols-3 gap-3 md:mt-8 md:gap-5">
+            <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3 md:mt-8 md:gap-5">
               {slots.map((look, index) => (
                 <LookImage
                   key={look?.src || `hero-empty-${index}`}

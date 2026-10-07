@@ -10,7 +10,7 @@ const icons = [Sparkles, Scissors];
 export default function BrandFeatures({ look }: { look?: HomeLook }) {
   return (
     <section dir="rtl" className="bg-white py-16 md:py-24">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:grid-cols-2 md:px-12 md:gap-16">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 md:grid-cols-2 md:px-12 md:gap-16">
         <div>
           <SectionHeading title="کشف پوششی با رگال" />
           <p className="mt-5 max-w-md text-sm leading-8 text-neutral-09">

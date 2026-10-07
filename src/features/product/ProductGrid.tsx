@@ -8,7 +8,7 @@ export default function ProductGrid({
   scroll?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-4 md:grid-cols-4 md:gap-5">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

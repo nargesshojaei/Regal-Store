@@ -22,7 +22,7 @@ const aboutPhotos = [
 export default function AboutIntro() {
   return (
     <section className="bg-white py-10 md:py-14">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-12">
         <nav aria-label="مسیر صفحه" className="mb-10 flex items-center gap-1.5 text-sm text-neutral-08">
           <Link href="/" className="transition-colors hover:text-primary">
             صفحه اصلی

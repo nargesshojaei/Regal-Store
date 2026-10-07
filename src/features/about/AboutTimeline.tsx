@@ -4,7 +4,7 @@ import { aboutJourney, aboutSteps } from "@/data/about";
 export default function AboutTimeline() {
   return (
     <section className="bg-neutral-01 py-16 md:py-24">
-      <div className="mx-auto max-w-5xl px-6 md:px-12">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 md:px-12">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-bold text-black md:text-4xl">{aboutJourney.title}</h2>
           <p className="mt-5 text-sm leading-8 text-neutral-09">{aboutJourney.text}</p>

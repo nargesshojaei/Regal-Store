@@ -9,7 +9,7 @@ export default function CartPage() {
   const { items, changeCount, remove, totalCount, totalPrice } = useCart();
 
   return (
-    <div dir="rtl" className="mx-auto max-w-7xl px-6 py-12 md:px-12">
+    <div dir="rtl" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:px-12 md:py-12">
       <h1 className="text-2xl font-semibold text-black">سبد خرید</h1>
 
       {items.length === 0 ? (

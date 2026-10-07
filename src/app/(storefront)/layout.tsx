@@ -10,7 +10,7 @@ export default function StorefrontLayout({
     <>
       {/* هدر و فوتر روی همه صفحات فروشگاه ثابت می‌مانند */}
       <Header />
-      <main className="min-h-screen bg-white">{children}</main>
+      <main className="min-w-0 min-h-screen overflow-x-clip bg-white">{children}</main>
       <Footer />
     </>
   );
